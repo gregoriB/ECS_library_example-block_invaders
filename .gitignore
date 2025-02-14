@@ -1,0 +1,8 @@
+build/
+.cache/
+libraries/
+libraries/ecs
+libraries/build
+game/build
+compile_commands.json
+

@@ -1,9 +1,5 @@
 #pragma once
 
-#include "../../src/entity_component_manager.hpp"
-#include "../../src/tags.hpp"
-#include "../../src/utilities.hpp"
-
 #include <algorithm>
 #include <cassert>
 #include <chrono>
@@ -18,9 +14,11 @@
 #include <utility>
 #include <vector>
 
+#include <ecs/include/ecs/ecs.hpp>
+
 using EntityId = uint32_t;
 using EId = EntityId;
-using ECM = EntityComponentManager<EntityId>;
+using ECM = ECS::EntityComponentManager<EntityId>;
 
 constexpr bool BREAK = false;
 constexpr bool CONTINUE = true;

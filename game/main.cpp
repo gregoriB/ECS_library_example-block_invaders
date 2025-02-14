@@ -1,4 +1,4 @@
- #include "example/invaders/game.hpp"
+ #include "src/game.hpp"
 
 #ifdef ecs_test
 #include "test/test_runner.hpp"
