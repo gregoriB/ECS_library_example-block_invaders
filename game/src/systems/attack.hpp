@@ -9,7 +9,7 @@ namespace Systems::Attack
 {
 inline void cleanup(ECM &ecm)
 {
-    Utilties::cleanupEffect<AttackEffect>(ecm);
+    Utilities::cleanupEffect<AttackEffect>(ecm);
 }
 
 inline void updateAttackEffect(ECM &ecm)

@@ -64,7 +64,7 @@ class Game
             if (!m_renderManager.init())
                 throw 12345;
 
-            Utilties::setup(m_entityComponentManager, m_screenConfig);
+            Utilities::setup(m_entityComponentManager, m_screenConfig);
         }
         catch (int code)
         {
@@ -94,7 +94,7 @@ class Game
             float startTime = m_renderManager.tick();
             auto inputs = m_renderManager.pollInputs();
 
-            Utilties::registerPlayerInputs(m_entityComponentManager, inputs);
+            Utilities::registerPlayerInputs(m_entityComponentManager, inputs);
 
             if (!Update::run(m_entityComponentManager))
             {
@@ -104,7 +104,7 @@ class Game
             };
 
             m_renderManager.clear();
-            auto renders = Utilties::getRenderableElements(m_entityComponentManager);
+            auto renders = Utilities::getRenderableElements(m_entityComponentManager);
             m_renderManager.render(renders);
 
             int endTime = m_renderManager.tick();
@@ -126,11 +126,11 @@ class Game
 
     void setDeltaTime(float delta)
     {
-        Utilties::updateDeltaTime(m_entityComponentManager, delta);
+        Utilities::updateDeltaTime(m_entityComponentManager, delta);
     }
 
   private:
-    EntityComponentManager<EntityId> m_entityComponentManager{};
+    ECS::EntityComponentManager<EntityId> m_entityComponentManager{};
     ScreenConfig m_screenConfig{};
     Renderer::Manager<EntityId> m_renderManager{m_screenConfig};
 };

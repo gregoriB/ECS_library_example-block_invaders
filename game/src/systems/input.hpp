@@ -12,7 +12,7 @@ inline void cleanup(ECM &ecm)
 
 inline void movePlayer(ECM &ecm)
 {
-    float dt = Utilties::getDeltaTime(ecm);
+    float dt = Utilities::getDeltaTime(ecm);
     auto [playerInputEventSet] = ecm.getAll<PlayerInputEvent>();
     playerInputEventSet.each([&](EId eId, auto &playerInputEvents) {
         bool isDeactivated = ecm.contains<DeactivatedComponent>(eId);

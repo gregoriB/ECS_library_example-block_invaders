@@ -4,6 +4,7 @@
 #include <cassert>
 #include <chrono>
 #include <cstdint>
+#include <cstdlib>
 #include <functional>
 #include <iostream>
 #include <limits>
@@ -14,7 +15,7 @@
 #include <utility>
 #include <vector>
 
-#include <ecs/include/ecs/ecs.hpp>
+#include <ecs/ecs.hpp>
 
 using EntityId = uint32_t;
 using EId = EntityId;

@@ -10,7 +10,7 @@ namespace Systems::Item
 {
 inline void cleanup(ECM &ecm)
 {
-    Utilties::cleanupEffect<PowerupTimeoutEffect, PowerupEffect>(ecm);
+    Utilities::cleanupEffect<PowerupTimeoutEffect, PowerupEffect>(ecm);
 }
 
 inline void spawnPowerup(ECM &ecm)

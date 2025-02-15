@@ -26,7 +26,7 @@ inline auto update(ECM &ecm)
                 }
                 case GameEvents::GAME_OVER: {
                     PRINT("GAME OVER")
-                    Utilties::nextStage(ecm, -999);
+                    Utilities::nextStage(ecm, -999);
                     auto [playerId, _] = ecm.getUnique<PlayerComponent>();
                     ecm.add<DeactivatedComponent>(playerId);
                     break;
@@ -36,14 +36,14 @@ inline auto update(ECM &ecm)
                     if (eId == startTriggerId)
                     {
                         gameComp.currentStage = 1;
-                        Utilties::nextStage(ecm, 1);
+                        Utilities::nextStage(ecm, 1);
                         auto entities = ecm.getEntityIds<TitleScreenComponent>();
                         ecm.remove(entities);
                     }
                     else
                     {
                         PRINT("STAGE CLEARED!!")
-                        Utilties::nextStage(ecm, ++gameComp.currentStage);
+                        Utilities::nextStage(ecm, ++gameComp.currentStage);
                     }
                     break;
                 }

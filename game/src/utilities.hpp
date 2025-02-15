@@ -10,7 +10,7 @@
 #include <string_view>
 #include <tuple>
 
-namespace Utilties
+namespace Utilities
 {
 inline auto &first(auto value)
 {
@@ -198,7 +198,7 @@ inline std::vector<Renderer::RenderableElement> getRenderableElements(ECM &ecm)
     return worldElements;
 };
 
-inline template <typename... Ts> void cleanupEffect(ECM &ecm)
+template <typename... Ts> inline void cleanupEffect(ECM &ecm)
 {
     std::apply(
         [&](auto &...set) {
@@ -213,6 +213,6 @@ inline template <typename... Ts> void cleanupEffect(ECM &ecm)
              ...);
         },
         ecm.getAll<Ts...>());
-}
+};
 
-}; // namespace Utilties
+}; // namespace Utilities

@@ -8,7 +8,7 @@ namespace Systems::Movement
 {
 inline void cleanup(ECM &ecm)
 {
-    Utilties::cleanupEffect<MovementEffect>(ecm);
+    Utilities::cleanupEffect<MovementEffect>(ecm);
 }
 
 inline auto checkOutOfBounds(const Bounds &countainer, const Bounds &subject)
@@ -34,7 +34,7 @@ inline Bounds calculateNewBounds(auto &movementEvents, const PositionComponent &
 
 inline void applyMovementEffects(ECM &ecm)
 {
-    auto dt = Utilties::getDeltaTime(ecm);
+    auto dt = Utilities::getDeltaTime(ecm);
     ecm.getGroup<MovementEffect, MovementComponent, PositionComponent>().each(
         [&](EId eId, auto &movementEffects, auto &movementComps, auto &positionComps) {
             movementEffects.inspect([&](const MovementEffect &movementEffect) {

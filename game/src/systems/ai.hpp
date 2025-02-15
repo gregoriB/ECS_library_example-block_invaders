@@ -4,13 +4,12 @@
 #include "../core.hpp"
 #include "../entities.hpp"
 #include "../utilities.hpp"
-#include <cstdlib>
 
 namespace Systems::AI
 {
 inline void cleanup(ECM &ecm)
 {
-    Utilties::cleanupEffect<AITimeoutEffect, UFOTimeoutEffect>(ecm);
+    Utilities::cleanupEffect<AITimeoutEffect, UFOTimeoutEffect>(ecm);
 }
 
 inline void updateOutsideHiveAliens(ECM &ecm, EId hiveId, const HiveComponent &hiveComp)
@@ -201,7 +200,7 @@ inline void updateHiveMovement(ECM &ecm, EId hiveId, auto &hiveMovementEffects)
     });
 }
 
-inline bool checkShouldHiveAIMove(Components<HiveMovementEffect> &hiveMovementEffects)
+inline bool checkShouldHiveAIMove(ECS::ComponentsWrapper<HiveMovementEffect> &hiveMovementEffects)
 {
     return !!hiveMovementEffects.find(
         [&](const HiveMovementEffect &hiveMovementEffect) { return hiveMovementEffect.timer->hasElapsed(); });

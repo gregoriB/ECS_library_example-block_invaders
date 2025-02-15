@@ -2,13 +2,13 @@
 
 #include "core.hpp"
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL_render.h>
 #include <SDL_stdinc.h>
 #include <SDL_timer.h>
 #include <cstddef>
 #include <cstdint>
+#include <filesystem>
 #include <iostream>
 #include <string_view>
 
@@ -53,7 +53,8 @@ template <typename EntityId> class Manager
     bool init()
     {
         TTF_Init();
-        m_font = TTF_OpenFont("/home/brandon/coding/cpp/ecs_library/example/invaders/assets/font.ttf", 24);
+        std::filesystem::path fontPath = std::filesystem::current_path() / "assets/font.ttf";
+        m_font = TTF_OpenFont(fontPath.string().c_str(), 24);
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
         {
             printError("Could not initialize renderer");
@@ -91,7 +92,6 @@ template <typename EntityId> class Manager
         SDL_DestroyRenderer(m_renderer);
         SDL_DestroyWindow(m_window);
 
-        IMG_Quit();
         SDL_Quit();
 
         m_window = nullptr;

@@ -4,13 +4,13 @@
 #include "renderer.hpp"
 #include <cstdint>
 
-using NoStack = Tags::NoStack;
-using Stack = Tags::Stack;
-using Event = Tags::Event;
-using Effect = Tags::Effect;
-using Required = Tags::Required;
-using Unique = Tags::Unique;
-using Transform = Tags::Transform;
+using NoStack = ECS::Tags::NoStack;
+using Stack = ECS::Tags::Stack;
+using Event = ECS::Tags::Event;
+using Effect = ECS::Tags::Effect;
+using Required = ECS::Tags::Required;
+using Unique = ECS::Tags::Unique;
+using Transform = ECS::Tags::Transform;
 
 enum class Movements
 {
