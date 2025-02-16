@@ -105,7 +105,7 @@ template <typename EntityId> class Manager
 
     bool createWindow()
     {
-        m_window = SDL_CreateWindow("SPACE INVADERS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+        m_window = SDL_CreateWindow("BLOCK INVADERS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                     m_screen.width, m_screen.height, SDL_WINDOW_SHOWN);
 
         if (!m_window)

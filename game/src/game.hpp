@@ -4,92 +4,56 @@
 #include "renderer.hpp"
 #include "update.hpp"
 #include "utilities.hpp"
-#include <stdexcept>
+#include "benchmark.hpp"
 
-class Benchmark
-{
-  public:
-    float average;
-    int cycles;
-
-    void printBenchmarks()
-    {
-        PRINT("average frame time:", average, "for", cycles, "frames\n", "  average FPS:", getFramerate());
-    }
-
-    void printBenchData()
-    {
-        PRINT("AVERAGE:", average, "CYCLES:", cycles, "FRAMERATE:", getFramerate())
-    }
-
-    void run(std::function<float()> fn)
-    {
-        auto start = std::chrono::high_resolution_clock::now();
-
-        cycles = fn();
-        if (cycles == 0)
-            cycles = 1;
-
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<float> duration = end - start;
-        average = duration.count() / cycles;
-    };
-
-    float getFramerate()
-    {
-        return cycles / (average * cycles);
-    }
-};
 
 class Game
 {
   public:
-    Benchmark run(int cycles = 0)
+    Benchmark run(int cycles)
     {
         if (!init())
             throw std::runtime_error("INIT FAILED");
 
-        m_renderManager.startRender();
         Benchmark benchmark;
         benchmark.run([&]() -> int { return loop(cycles); });
 
         return benchmark;
     }
 
+    void run()
+    {
+        if (!init())
+            throw std::runtime_error("INIT FAILED");
+
+        loop();
+    }
+
   private:
     bool init()
     {
-        try
-        {
-            if (!m_renderManager.init())
-                throw 12345;
+        if (!m_renderManager.init())
+            throw 12345;
 
-            Utilities::setup(m_entityComponentManager, m_screenConfig);
-        }
-        catch (int code)
-        {
-            PRINT("Error from init()", code)
-            return false;
-        }
+        Utilities::setup(m_entityComponentManager, m_screenConfig);
+        m_renderManager.startRender();
 
         return true;
     }
 
     int loop(int limit = 0)
     {
-        int cycles{0};
+        PRINT("\n $$$$$ STARTING GAME $$$$$ \n")
 
-        std::cout << "\n $$$$$ STARTING GAME $$$$$ \n";
+        int cycleCount{0};
         bool quit{false};
         float prevTime = m_renderManager.tick();
 
         while (!quit)
         {
-            cycles++;
-            if (cycles++ > limit && limit)
+            cycleCount++;
+            if (cycleCount++ > limit && limit)
                 break;
-
-            /* PRINT("\n ~~~ CYCLE:", cycles, "~~~\n") */
 
             float startTime = m_renderManager.tick();
             auto inputs = m_renderManager.pollInputs();
@@ -117,11 +81,11 @@ class Game
             prevTime = startTime;
         }
 
-        std::cout << "\n $$$$$ GAME OVER $$$$$ \n\n";
+        PRINT("\n $$$$$ GAME OVER $$$$$ \n\n")
 
         m_renderManager.exit();
 
-        return cycles;
+        return cycleCount;
     }
 
     void setDeltaTime(float delta)

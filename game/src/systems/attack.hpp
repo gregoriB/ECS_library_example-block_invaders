@@ -19,6 +19,9 @@ inline void updateAttackEffect(ECM &ecm)
         // clang-format off
         attackEffects
             .filter([&](const AttackEffect &effect) { 
+                // If the projectile entity no longer exists, the attack effect
+                // needs to be cleaned up. This limits attacking to a single shot
+                // on the screen at a time
                 auto [projectileComps] = ecm.get<ProjectileComponent>(effect.attackId);
                 return !projectileComps || effect.timer->hasElapsed();
             })

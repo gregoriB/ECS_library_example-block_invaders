@@ -1,19 +1,17 @@
  #include "src/game.hpp"
 
-#ifdef ecs_test
-#include "test/test_runner.hpp"
-#endif
-
-Benchmark runWithBenchmarks()
+/** 
+ * @brief Run benchmarks for the specified number of sets and frames
+ *
+ * @param sets - number of sets to run
+ */
+Benchmark runWithBenchmarks(int sets = 3, int frames = 500000)
 {
-    int frameLimit{500000};
-    int totalSets{3};
-
     std::vector<Benchmark> benchmarks{};
-    for (int i = 0; i < totalSets; ++i)
+    for (int i = 0; i < sets; ++i)
     {
         Game game{};
-        benchmarks.push_back(game.run(frameLimit));
+        benchmarks.push_back(game.run(frames));
     }
 
     Benchmark benches{};
@@ -24,32 +22,24 @@ Benchmark runWithBenchmarks()
         benches.average += bench.average;
     }
 
-    benches.average /= totalSets;
+    benches.average /= sets;
 
     return benches;
 }
 
-void run()
-{
-    Game game{};
-    game.run();
-}
-
 int main() {
-#ifdef ecs_test
-    TestSystem::run();
-
-    return 0;
-#endif
 
 #ifdef ecs_with_benchmarks
+
     Benchmark bench = runWithBenchmarks();
     bench.printBenchmarks();
 
-    return 0;
-#endif
+#else
 
-    run();
+    Game game{};
+    game.run();
+
+#endif
     
     return 0;
 }

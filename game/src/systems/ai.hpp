@@ -21,6 +21,7 @@ inline void updateOutsideHiveAliens(ECM &ecm, EId hiveId, const HiveComponent &h
         return;
     }
 
+    // Add components to distinquish the aliens on the left and right sites of the hive
     auto [x, y, w, h] = hiveComp.bounds.box();
     for (const auto &eId : ids)
     {
@@ -43,6 +44,7 @@ inline void updateHiveBounds(ECM &ecm, EId hiveId)
         Vector2 topLeft{MAX_FLOAT, MAX_FLOAT};
         Vector2 bottomRight{MIN_FLOAT, MIN_FLOAT};
 
+        // Get the topleft and bottomright hive bounds from the alien positions
         ecm.getGroup<HiveAIComponent, PositionComponent>().each([&](EId eId, auto &_, auto &positionComps) {
             positionComps.inspect([&](const PositionComponent &posComp) {
                 auto [x, y, w, h] = posComp.bounds.box();
@@ -125,7 +127,7 @@ template <typename Movement> inline bool checkIsOutOfBounds(ECM &ecm, EId hiveId
         return false;
 
     auto [posComps] = ecm.get<PositionComponent>(hiveAiIds[0]);
-    return !!posComps.find([&](const PositionComponent &positionComp) {
+    return !!(posComps.find([&](const PositionComponent &positionComp) {
         auto [x, y] = calculateSpeed(ecm, hiveSpeeds, movement);
         Bounds newBounds{
             positionComp.bounds.position.x + x,
@@ -138,7 +140,7 @@ template <typename Movement> inline bool checkIsOutOfBounds(ECM &ecm, EId hiveId
         auto [nX, nY, nW, nH] = newBounds.box();
 
         return nX <= gX || nY <= gY || nW >= gW || nH >= gH;
-    });
+    }));
 }
 
 inline bool checkHiveOutOfBounds(ECM &ecm, EId hiveId, auto &hiveMovementEffects)
@@ -202,8 +204,8 @@ inline void updateHiveMovement(ECM &ecm, EId hiveId, auto &hiveMovementEffects)
 
 inline bool checkShouldHiveAIMove(ECS::ComponentsWrapper<HiveMovementEffect> &hiveMovementEffects)
 {
-    return !!hiveMovementEffects.find(
-        [&](const HiveMovementEffect &hiveMovementEffect) { return hiveMovementEffect.timer->hasElapsed(); });
+    return !!(hiveMovementEffects.find(
+        [&](const HiveMovementEffect &hiveMovementEffect) { return hiveMovementEffect.timer->hasElapsed(); }));
 }
 
 inline void updateHive(ECM &ecm)

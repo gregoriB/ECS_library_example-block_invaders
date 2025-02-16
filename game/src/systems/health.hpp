@@ -22,6 +22,7 @@ inline auto update(ECM &ecm)
                 if (!ecm.contains<ObstacleComponent>(eId))
                     return;
 
+                // Update obstacle color to reflect damage
                 auto [spriteComps] = ecm.get<SpriteComponent>(eId);
                 spriteComps.mutate([&](SpriteComponent &spriteComp) {
                     auto [r, g, b, a] = spriteComp.rgba;

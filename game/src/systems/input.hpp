@@ -14,11 +14,14 @@ inline void movePlayer(ECM &ecm)
 {
     float dt = Utilities::getDeltaTime(ecm);
     auto [playerInputEventSet] = ecm.getAll<PlayerInputEvent>();
+
     playerInputEventSet.each([&](EId eId, auto &playerInputEvents) {
         bool isDeactivated = ecm.contains<DeactivatedComponent>(eId);
+
         auto [movementComps] = ecm.get<MovementComponent>(eId);
         auto &speeds = movementComps.peek(&MovementComponent::speeds);
         float baseSpeed = speeds.x * dt;
+
         playerInputEvents.inspect([&](const PlayerInputEvent &inputEvent) {
             using Actions = decltype(PlayerInputEvent::action);
             switch (inputEvent.action)

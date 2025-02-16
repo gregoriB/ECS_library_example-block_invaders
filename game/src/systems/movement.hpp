@@ -43,11 +43,11 @@ inline void applyMovementEffects(ECM &ecm)
                 auto &targetPos = movementEffect.trajectory;
 
                 // clang-format off
-            Vector2 diff{position.x - targetPos.x, position.y - targetPos.y};
-            Vector2 directions{
-                diff.x < 0 ? 1.0f : diff.x > 0 ? -1.0f : 0,
-                diff.y < 0 ? 1.0f : diff.y > 0 ? -1.0f : 0,
-            };
+                Vector2 diff{position.x - targetPos.x, position.y - targetPos.y};
+                Vector2 directions{
+                    diff.x < 0 ? 1.0f : diff.x > 0 ? -1.0f : 0,
+                    diff.y < 0 ? 1.0f : diff.y > 0 ? -1.0f : 0,
+                };
                 // clang-format on
 
                 auto xMove = speeds.x * dt;

@@ -36,10 +36,9 @@ inline void spawnPowerup(ECM &ecm)
 
 inline void processEvents(ECM &ecm)
 {
-    auto [powerupEventSet] = ecm.getAll<PowerupEvent>();
-    powerupEventSet.each([&](EId eId, auto &powerupEvents) {
-        powerupEvents.inspect([&](const PowerupEvent &event) { ecm.add<PowerupEffect>(eId); });
-    });
+    auto& powerupEventIds = ecm.getEntityIds<PowerupEvent>();
+    for (const auto& id : powerupEventIds)
+        ecm.add<PowerupEffect>(id);
 }
 
 inline auto update(ECM &ecm)
