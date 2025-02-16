@@ -2,10 +2,10 @@
 
 #include "core.hpp"
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
 #include <SDL_render.h>
 #include <SDL_stdinc.h>
 #include <SDL_timer.h>
+#include <SDL_ttf.h>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
