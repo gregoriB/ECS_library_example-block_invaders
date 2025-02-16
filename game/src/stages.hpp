@@ -6,7 +6,7 @@
 // clang-format off
 namespace Stages
 {
-inline std::function<EntityId(ECM &ecm, float, float, float, float)> getEntityConstructor(char c)
+inline std::function<EntityId(CM &cm, float, float, float, float)> getEntityConstructor(char c)
 {
     switch (c)
     {

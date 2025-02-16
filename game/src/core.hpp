@@ -19,7 +19,7 @@
 
 using EntityId = uint32_t;
 using EId = EntityId;
-using ECM = ECS::EntityComponentManager<EntityId>;
+using CM = ECS::EntityComponentManager<EntityId>;
 
 constexpr bool BREAK = false;
 constexpr bool CONTINUE = true;

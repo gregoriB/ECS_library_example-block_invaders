@@ -5,33 +5,33 @@
 
 namespace Systems::UI
 {
-inline void cleanup(ECM &ecm)
+inline void cleanup(CM &cm)
 {
 }
 
-inline auto update(ECM &ecm)
+inline auto update(CM &cm)
 {
-    auto [uiEventSet] = ecm.getAll<UIEvent>();
+    auto [uiEventSet] = cm.getAll<UIEvent>();
     uiEventSet.each([&](EId eId, auto &uiEvents) {
         uiEvents.inspect([&](const UIEvent &uiEvent) {
-            auto [playerId, playerComps] = ecm.getUnique<PlayerComponent>();
+            auto [playerId, playerComps] = cm.getUnique<PlayerComponent>();
             using Event = decltype(uiEvent.event);
             switch (uiEvent.event)
             {
             case Event::UPDATE_SCORE: {
-                auto [scoreComps] = ecm.get<ScoreComponent>(playerId);
+                auto [scoreComps] = cm.get<ScoreComponent>(playerId);
                 auto &score = scoreComps.peek(&ScoreComponent::score);
-                auto [playerScoreId, _] = ecm.getUnique<PlayerScoreCardComponent>();
-                auto [textComps] = ecm.get<TextComponent>(playerScoreId);
+                auto [playerScoreId, _] = cm.getUnique<PlayerScoreCardComponent>();
+                auto [textComps] = cm.get<TextComponent>(playerScoreId);
                 textComps.mutate(
                     [&](TextComponent &textComp) { textComp.text = "SCORE: " + std::to_string(score); });
                 break;
             }
             case Event::UPDATE_LIVES: {
-                auto [livesComps] = ecm.get<LivesComponent>(playerId);
+                auto [livesComps] = cm.get<LivesComponent>(playerId);
                 auto &lives = livesComps.peek(&LivesComponent::count);
-                auto [playerLifeCardId, _] = ecm.getUnique<PlayerLifeCardComponent>();
-                auto [textComps] = ecm.get<TextComponent>(playerLifeCardId);
+                auto [playerLifeCardId, _] = cm.getUnique<PlayerLifeCardComponent>();
+                auto [textComps] = cm.get<TextComponent>(playerLifeCardId);
                 textComps.mutate(
                     [&](TextComponent &textComp) { textComp.text = "LIVES: " + std::to_string(lives); });
                 break;

@@ -5,16 +5,16 @@
 
 namespace Systems::Position
 {
-inline void cleanup(ECM &ecm)
+inline void cleanup(CM &cm)
 {
 }
 
-inline auto update(ECM &ecm)
+inline auto update(CM &cm)
 {
-    auto [positionEventSet] = ecm.getAll<PositionEvent>();
+    auto [positionEventSet] = cm.getAll<PositionEvent>();
     positionEventSet.each([&](EId eId, auto &positionEvents) {
         positionEvents.inspect([&](const PositionEvent &positionEvent) {
-            auto [positionComps] = ecm.get<PositionComponent>(eId);
+            auto [positionComps] = cm.get<PositionComponent>(eId);
             positionComps.mutate([&](PositionComponent &positionComp) {
                 positionComp.bounds.position.x = positionEvent.coords.x;
                 positionComp.bounds.position.y = positionEvent.coords.y;

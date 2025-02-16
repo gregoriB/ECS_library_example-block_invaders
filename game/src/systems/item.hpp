@@ -8,43 +8,43 @@
 
 namespace Systems::Item
 {
-inline void cleanup(ECM &ecm)
+inline void cleanup(CM &cm)
 {
-    Utilities::cleanupEffect<PowerupTimeoutEffect, PowerupEffect>(ecm);
+    Utilities::cleanupEffect<PowerupTimeoutEffect, PowerupEffect>(cm);
 }
 
-inline void spawnPowerup(ECM &ecm)
+inline void spawnPowerup(CM &cm)
 {
-    auto [gameId, gameMetaComps] = ecm.getUnique<GameMetaComponent>();
-    if (ecm.contains<PowerupTimeoutEffect>(gameId))
+    auto [gameId, gameMetaComps] = cm.getUnique<GameMetaComponent>();
+    if (cm.contains<PowerupTimeoutEffect>(gameId))
         return;
 
-    auto [playerId, _] = ecm.getUnique<PlayerComponent>();
-    if (ecm.contains<PowerupEffect>(playerId))
+    auto [playerId, _] = cm.getUnique<PlayerComponent>();
+    if (cm.contains<PowerupEffect>(playerId))
         return;
 
-    auto [positionComps] = ecm.get<PositionComponent>(playerId);
+    auto [positionComps] = cm.get<PositionComponent>(playerId);
     auto &playerPos = positionComps.peek(&PositionComponent::bounds);
 
     auto &screenSize = gameMetaComps.peek(&GameMetaComponent::screen);
     float tileSize = gameMetaComps.peek(&GameMetaComponent::tileSize);
 
     float randomX = std::rand() % static_cast<int>(screenSize.x - tileSize);
-    createPowerup(ecm, Bounds{randomX + tileSize, playerPos.position.y, tileSize, tileSize});
-    ecm.add<PowerupTimeoutEffect>(gameId);
+    createPowerup(cm, Bounds{randomX + tileSize, playerPos.position.y, tileSize, tileSize});
+    cm.add<PowerupTimeoutEffect>(gameId);
 }
 
-inline void processEvents(ECM &ecm)
+inline void processEvents(CM &cm)
 {
-    auto& powerupEventIds = ecm.getEntityIds<PowerupEvent>();
-    for (const auto& id : powerupEventIds)
-        ecm.add<PowerupEffect>(id);
+    auto &powerupEventIds = cm.getEntityIds<PowerupEvent>();
+    for (const auto &id : powerupEventIds)
+        cm.add<PowerupEffect>(id);
 }
 
-inline auto update(ECM &ecm)
+inline auto update(CM &cm)
 {
-    processEvents(ecm);
-    spawnPowerup(ecm);
+    processEvents(cm);
+    spawnPowerup(cm);
 
     return cleanup;
 }

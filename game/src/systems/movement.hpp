@@ -6,9 +6,9 @@
 
 namespace Systems::Movement
 {
-inline void cleanup(ECM &ecm)
+inline void cleanup(CM &cm)
 {
-    Utilities::cleanupEffect<MovementEffect>(ecm);
+    Utilities::cleanupEffect<MovementEffect>(cm);
 }
 
 inline auto checkOutOfBounds(const Bounds &countainer, const Bounds &subject)
@@ -32,10 +32,10 @@ inline Bounds calculateNewBounds(auto &movementEvents, const PositionComponent &
     return Bounds{pX + rX, pY + rY, pW, pH};
 }
 
-inline void applyMovementEffects(ECM &ecm)
+inline void applyMovementEffects(CM &cm)
 {
-    auto dt = Utilities::getDeltaTime(ecm);
-    ecm.getGroup<MovementEffect, MovementComponent, PositionComponent>().each(
+    auto dt = Utilities::getDeltaTime(cm);
+    cm.getGroup<MovementEffect, MovementComponent, PositionComponent>().each(
         [&](EId eId, auto &movementEffects, auto &movementComps, auto &positionComps) {
             movementEffects.inspect([&](const MovementEffect &movementEffect) {
                 auto &speeds = movementComps.peek(&MovementComponent::speeds);
@@ -52,18 +52,18 @@ inline void applyMovementEffects(ECM &ecm)
 
                 auto xMove = speeds.x * dt;
                 auto yMove = speeds.y * dt;
-                ecm.add<MovementEvent>(eId, Vector2{xMove * directions.x, yMove * directions.y});
+                cm.add<MovementEvent>(eId, Vector2{xMove * directions.x, yMove * directions.y});
             });
         });
 }
 
-inline void updateOtherMovement(ECM &ecm)
+inline void updateOtherMovement(CM &cm)
 {
-    auto [movementEventSet] = ecm.getAll<MovementEvent>();
+    auto [movementEventSet] = cm.getAll<MovementEvent>();
     movementEventSet.each([&](EId eId, auto &movementEvents) {
-        auto [positionComps] = ecm.get<PositionComponent>(eId);
+        auto [positionComps] = cm.get<PositionComponent>(eId);
         positionComps.inspect([&](const PositionComponent &positionComp) {
-            auto [gameId, gameComps] = ecm.getUnique<GameComponent>();
+            auto [gameId, gameComps] = cm.getUnique<GameComponent>();
             auto &gameBounds = gameComps.peek(&GameComponent::bounds);
             auto [gX, gY, gW, gH] = gameBounds.box();
 
@@ -74,27 +74,27 @@ inline void updateOtherMovement(ECM &ecm)
             // TODO Task : Move boundary checks to collision system
             if (checkOutOfBounds(gameBounds, newBounds))
             {
-                if (!ecm.contains<ProjectileComponent>(eId) && !ecm.contains<UFOAIComponent>(eId))
+                if (!cm.contains<ProjectileComponent>(eId) && !cm.contains<UFOAIComponent>(eId))
                     return;
 
                 if (newH < gY || newY > gH || newW < gX || newX > gW)
                 {
-                    ecm.add<DeathEvent>(eId);
+                    cm.add<DeathEvent>(eId);
                     return;
                 }
             }
 
             Vector2 newPos{newX, newY};
-            ecm.add<CollisionCheckEvent>(eId, Bounds{newPos, Vector2{w, h}});
-            ecm.add<PositionEvent>(eId, std::move(newPos));
+            cm.add<CollisionCheckEvent>(eId, Bounds{newPos, Vector2{w, h}});
+            cm.add<PositionEvent>(eId, std::move(newPos));
         });
     });
 }
 
-inline auto update(ECM &ecm)
+inline auto update(CM &cm)
 {
-    applyMovementEffects(ecm);
-    updateOtherMovement(ecm);
+    applyMovementEffects(cm);
+    updateOtherMovement(cm);
 
     return cleanup;
 };

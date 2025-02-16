@@ -6,19 +6,19 @@
 
 namespace Systems::Input
 {
-inline void cleanup(ECM &ecm)
+inline void cleanup(CM &cm)
 {
 }
 
-inline void movePlayer(ECM &ecm)
+inline void movePlayer(CM &cm)
 {
-    float dt = Utilities::getDeltaTime(ecm);
-    auto [playerInputEventSet] = ecm.getAll<PlayerInputEvent>();
+    float dt = Utilities::getDeltaTime(cm);
+    auto [playerInputEventSet] = cm.getAll<PlayerInputEvent>();
 
     playerInputEventSet.each([&](EId eId, auto &playerInputEvents) {
-        bool isDeactivated = ecm.contains<DeactivatedComponent>(eId);
+        bool isDeactivated = cm.contains<DeactivatedComponent>(eId);
 
-        auto [movementComps] = ecm.get<MovementComponent>(eId);
+        auto [movementComps] = cm.get<MovementComponent>(eId);
         auto &speeds = movementComps.peek(&MovementComponent::speeds);
         float baseSpeed = speeds.x * dt;
 
@@ -30,11 +30,11 @@ inline void movePlayer(ECM &ecm)
                 if (isDeactivated)
                     return;
 
-                ecm.add<AttackEvent>(eId, 3);
+                cm.add<AttackEvent>(eId, 3);
                 break;
             case Actions::QUIT: {
-                auto [gameId, _] = ecm.getUnique<GameComponent>();
-                ecm.add<GameEvent>(gameId, GameEvents::QUIT);
+                auto [gameId, _] = cm.getUnique<GameComponent>();
+                cm.add<GameEvent>(gameId, GameEvents::QUIT);
                 break;
             }
             default:
@@ -48,10 +48,10 @@ inline void movePlayer(ECM &ecm)
             switch (inputEvent.movement)
             {
             case Movements::LEFT:
-                ecm.add<MovementEvent>(eId, Vector2{-1 * baseSpeed, 0});
+                cm.add<MovementEvent>(eId, Vector2{-1 * baseSpeed, 0});
                 break;
             case Movements::RIGHT:
-                ecm.add<MovementEvent>(eId, Vector2{baseSpeed, 0});
+                cm.add<MovementEvent>(eId, Vector2{baseSpeed, 0});
                 break;
             default:
                 break;
@@ -60,9 +60,9 @@ inline void movePlayer(ECM &ecm)
     });
 }
 
-inline auto update(ECM &ecm)
+inline auto update(CM &cm)
 {
-    movePlayer(ecm);
+    movePlayer(cm);
 
     return cleanup;
 };

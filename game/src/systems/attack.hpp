@@ -7,14 +7,14 @@
 
 namespace Systems::Attack
 {
-inline void cleanup(ECM &ecm)
+inline void cleanup(CM &cm)
 {
-    Utilities::cleanupEffect<AttackEffect>(ecm);
+    Utilities::cleanupEffect<AttackEffect>(cm);
 }
 
-inline void updateAttackEffect(ECM &ecm)
+inline void updateAttackEffect(CM &cm)
 {
-    auto [attackEffectSet] = ecm.getAll<AttackEffect>();
+    auto [attackEffectSet] = cm.getAll<AttackEffect>();
     attackEffectSet.each([&](EId eId, auto &attackEffects) {
         // clang-format off
         attackEffects
@@ -22,7 +22,7 @@ inline void updateAttackEffect(ECM &ecm)
                 // If the projectile entity no longer exists, the attack effect
                 // needs to be cleaned up. This limits attacking to a single shot
                 // on the screen at a time
-                auto [projectileComps] = ecm.get<ProjectileComponent>(effect.attackId);
+                auto [projectileComps] = cm.get<ProjectileComponent>(effect.attackId);
                 return !projectileComps || effect.timer->hasElapsed();
             })
             .mutate([&](auto &effect) { effect.cleanup = true; });
@@ -30,16 +30,16 @@ inline void updateAttackEffect(ECM &ecm)
     });
 }
 
-inline void processAttacks(ECM &ecm)
+inline void processAttacks(CM &cm)
 {
-    auto [attackEventSet] = ecm.getAll<AttackEvent>();
+    auto [attackEventSet] = cm.getAll<AttackEvent>();
     attackEventSet.each([&](EId eId, auto &attackEvents) {
         attackEvents.inspect([&](const AttackEvent &attackEvent) {
-            auto [attackEffects] = ecm.get<AttackEffect>(eId);
+            auto [attackEffects] = cm.get<AttackEffect>(eId);
             if (attackEffects)
                 return;
 
-            auto [positionComps, attackComps] = ecm.get<PositionComponent, AttackComponent>(eId);
+            auto [positionComps, attackComps] = cm.get<PositionComponent, AttackComponent>(eId);
             auto &bounds = positionComps.peek(&PositionComponent::bounds);
             auto direction = attackComps.peek(&AttackComponent::direction);
 
@@ -48,24 +48,24 @@ inline void processAttacks(ECM &ecm)
             switch (direction)
             {
             case (Movements::UP):
-                projectileId = createUpwardProjectile(ecm, eId, bounds);
+                projectileId = createUpwardProjectile(cm, eId, bounds);
                 break;
             case (Movements::DOWN):
-                projectileId = createDownwardProjectile(ecm, eId, bounds);
+                projectileId = createDownwardProjectile(cm, eId, bounds);
                 break;
             default:
                 return;
             }
 
-            ecm.add<AttackEffect>(eId, projectileId, attackEvent.timeout);
+            cm.add<AttackEffect>(eId, projectileId, attackEvent.timeout);
         });
     });
 }
 
-inline auto update(ECM &ecm)
+inline auto update(CM &cm)
 {
-    processAttacks(ecm);
-    updateAttackEffect(ecm);
+    processAttacks(cm);
+    updateAttackEffect(cm);
 
     return cleanup;
 };

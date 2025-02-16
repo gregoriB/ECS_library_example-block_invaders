@@ -5,26 +5,26 @@
 
 namespace Systems::Player
 {
-inline void cleanup(ECM &ecm)
+inline void cleanup(CM &cm)
 {
 }
 
-inline auto update(ECM &ecm)
+inline auto update(CM &cm)
 {
-    auto [playerId, playerComps] = ecm.getUnique<PlayerComponent>();
-    auto [playerEventSet] = ecm.getAll<PlayerEvent>();
+    auto [playerId, playerComps] = cm.getUnique<PlayerComponent>();
+    auto [playerEventSet] = cm.getAll<PlayerEvent>();
     playerEventSet.each([&](EId eId, auto &playerEvents) {
         playerEvents.inspect([&](const PlayerEvent &playerEvent) {
             using Event = decltype(playerEvent.event);
             switch (playerEvent.event)
             {
             case Event::DEATH: {
-                auto [livesComps] = ecm.get<LivesComponent>(playerId);
+                auto [livesComps] = cm.get<LivesComponent>(playerId);
                 livesComps.mutate([&](LivesComponent &livesComp) { --livesComp.count; });
                 auto &lifeCount = livesComps.peek(&LivesComponent::count);
-                ecm.add<UIEvent>(eId, UIEvents::UPDATE_LIVES);
+                cm.add<UIEvent>(eId, UIEvents::UPDATE_LIVES);
                 if (lifeCount <= 0)
-                    ecm.add<GameEvent>(eId, GameEvents::GAME_OVER);
+                    cm.add<GameEvent>(eId, GameEvents::GAME_OVER);
 
                 break;
             }

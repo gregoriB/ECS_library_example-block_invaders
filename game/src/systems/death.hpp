@@ -5,40 +5,40 @@
 
 namespace Systems::Death
 {
-inline void cleanup(ECM &ecm)
+inline void cleanup(CM &cm)
 {
-    auto &deadIds = ecm.getEntityIds<DeathComponent>();
+    auto &deadIds = cm.getEntityIds<DeathComponent>();
     for (const auto &id : deadIds)
-        ecm.remove(id);
+        cm.remove(id);
 }
 
-inline auto update(ECM &ecm)
+inline auto update(CM &cm)
 {
-    auto [deathSet] = ecm.getAll<DeathEvent>();
+    auto [deathSet] = cm.getAll<DeathEvent>();
     deathSet.each([&](EId eId, ECS::ComponentsWrapper<DeathEvent> &deathEvents) {
-        auto [playerId, _] = ecm.getUnique<PlayerComponent>();
+        auto [playerId, _] = cm.getUnique<PlayerComponent>();
         if (eId == playerId)
         {
             deathEvents.inspect(
                 [&](const DeathEvent &deathEvent) { PRINT("PLAYER KILLED BY ", deathEvent.killedBy) });
-            ecm.add<PlayerEvent>(eId, PlayerEvents::DEATH);
+            cm.add<PlayerEvent>(eId, PlayerEvents::DEATH);
             return;
         }
 
-        auto [startTriggerId, _] = ecm.getUnique<StartGameTriggerComponent>();
+        auto [startTriggerId, _] = cm.getUnique<StartGameTriggerComponent>();
         if (eId == startTriggerId)
         {
-            ecm.add<GameEvent>(eId, GameEvents::NEXT_STAGE);
+            cm.add<GameEvent>(eId, GameEvents::NEXT_STAGE);
         }
 
         deathEvents.inspect([&](const DeathEvent &deathEvent) {
-            if (!ecm.contains<PointsComponent>(eId))
+            if (!cm.contains<PointsComponent>(eId))
                 return;
 
-            ecm.add<ScoreEvent>(deathEvent.killedBy, eId);
+            cm.add<ScoreEvent>(deathEvent.killedBy, eId);
         });
 
-        ecm.add<DeathComponent>(eId);
+        cm.add<DeathComponent>(eId);
     });
 
     return cleanup;

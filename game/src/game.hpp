@@ -1,11 +1,10 @@
 #pragma once
 
+#include "benchmark.hpp"
 #include "core.hpp"
 #include "renderer.hpp"
 #include "update.hpp"
 #include "utilities.hpp"
-#include "benchmark.hpp"
-
 
 class Game
 {

@@ -5,21 +5,21 @@
 
 namespace Systems::Damage
 {
-inline void cleanup(ECM &ecm)
+inline void cleanup(CM &cm)
 {
 }
 
-inline auto update(ECM &ecm)
+inline auto update(CM &cm)
 {
-    auto [damageEventSet] = ecm.getAll<DamageEvent>();
+    auto [damageEventSet] = cm.getAll<DamageEvent>();
     damageEventSet.each([&](EId eId, auto &damageEvents) {
         damageEvents.inspect([&](const DamageEvent &damageEvent) {
-            auto [damageComps] = ecm.get<DamageComponent>(damageEvent.dealerId);
+            auto [damageComps] = cm.get<DamageComponent>(damageEvent.dealerId);
             if (!damageComps)
                 return;
 
             auto &amount = damageComps.peek(&DamageComponent::amount);
-            ecm.add<HealthEvent>(eId, -1 * amount, damageEvent.dealerId);
+            cm.add<HealthEvent>(eId, -1 * amount, damageEvent.dealerId);
         });
     });
 

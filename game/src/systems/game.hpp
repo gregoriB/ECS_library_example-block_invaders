@@ -6,16 +6,16 @@
 
 namespace Systems::Game
 {
-inline void cleanup(ECM &ecm)
+inline void cleanup(CM &cm)
 {
 }
 
-inline auto update(ECM &ecm)
+inline auto update(CM &cm)
 {
-    auto [gameEventSet] = ecm.getAll<GameEvent>();
+    auto [gameEventSet] = cm.getAll<GameEvent>();
     gameEventSet.each([&](EId eId, auto &gameEvents) {
         gameEvents.inspect([&](const GameEvent &gameEvent) {
-            auto [_, gameComps] = ecm.getUnique<GameComponent>();
+            auto [_, gameComps] = cm.getUnique<GameComponent>();
             gameComps.mutate([&](GameComponent &gameComp) {
                 switch (gameEvent.event)
                 {
@@ -26,24 +26,24 @@ inline auto update(ECM &ecm)
                 }
                 case GameEvents::GAME_OVER: {
                     PRINT("GAME OVER")
-                    Utilities::nextStage(ecm, -999);
-                    auto [playerId, _] = ecm.getUnique<PlayerComponent>();
-                    ecm.add<DeactivatedComponent>(playerId);
+                    Utilities::nextStage(cm, -999);
+                    auto [playerId, _] = cm.getUnique<PlayerComponent>();
+                    cm.add<DeactivatedComponent>(playerId);
                     break;
                 }
                 case GameEvents::NEXT_STAGE: {
-                    auto [startTriggerId, _] = ecm.getUnique<StartGameTriggerComponent>();
+                    auto [startTriggerId, _] = cm.getUnique<StartGameTriggerComponent>();
                     if (eId == startTriggerId)
                     {
                         gameComp.currentStage = 1;
-                        Utilities::nextStage(ecm, 1);
-                        auto entities = ecm.getEntityIds<TitleScreenComponent>();
-                        ecm.remove(entities);
+                        Utilities::nextStage(cm, 1);
+                        auto entities = cm.getEntityIds<TitleScreenComponent>();
+                        cm.remove(entities);
                     }
                     else
                     {
                         PRINT("STAGE CLEARED!!")
-                        Utilities::nextStage(ecm, ++gameComp.currentStage);
+                        Utilities::nextStage(cm, ++gameComp.currentStage);
                     }
                     break;
                 }

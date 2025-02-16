@@ -5,27 +5,27 @@
 
 namespace Systems::Score
 {
-inline void cleanup(ECM &ecm)
+inline void cleanup(CM &cm)
 {
 }
 
-inline auto update(ECM &ecm)
+inline auto update(CM &cm)
 {
-    auto [scoreEventSet] = ecm.getAll<ScoreEvent>();
+    auto [scoreEventSet] = cm.getAll<ScoreEvent>();
     scoreEventSet.each([&](EId eId, auto &scoreEvents) {
         scoreEvents.inspect([&](const ScoreEvent &scoreEvent) {
-            auto [pointsComps] = ecm.get<PointsComponent>(scoreEvent.pointsId);
+            auto [pointsComps] = cm.get<PointsComponent>(scoreEvent.pointsId);
             if (!pointsComps)
                 return;
 
             auto [points, multiplier] =
                 pointsComps.peek(&PointsComponent::points, &PointsComponent::multiplier);
-            auto [scoreComps] = ecm.get<ScoreComponent>(eId);
+            auto [scoreComps] = cm.get<ScoreComponent>(eId);
             scoreComps.mutate([&](ScoreComponent &scoreComp) { scoreComp.score += (points * multiplier); });
 
-            auto [playerId, _] = ecm.getUnique<PlayerComponent>();
+            auto [playerId, _] = cm.getUnique<PlayerComponent>();
             if (eId == playerId)
-                ecm.add<UIEvent>(eId, UIEvents::UPDATE_SCORE);
+                cm.add<UIEvent>(eId, UIEvents::UPDATE_SCORE);
         });
     });
 

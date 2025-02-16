@@ -21,40 +21,40 @@
 
 namespace Update
 {
-using CleanupFunc = std::function<void(ECM &)>;
+using CleanupFunc = std::function<void(CM &)>;
 
-template <typename CleanupFuncs> inline void cleanup(ECM &ecm, CleanupFuncs &cleanupFuncs)
+template <typename CleanupFuncs> inline void cleanup(CM &cm, CleanupFuncs &cleanupFuncs)
 {
     for (auto &func : cleanupFuncs)
-        func(ecm);
+        func(cm);
 
-    ecm.clear<ECS::Tags::Event>();
+    cm.clear<ECS::Tags::Event>();
 }
 
-inline bool run(ECM &ecm)
+inline bool run(CM &cm)
 {
     // clang-format off
     std::array<CleanupFunc, 14> cleanupFuncs{
-        Systems::AI::update(ecm),
-        Systems::Input::update(ecm),
-        Systems::Attack::update(ecm),
-        Systems::Movement::update(ecm),
-        Systems::Position::update(ecm),
-        Systems::Collision::update(ecm),
-        Systems::Damage::update(ecm),
-        Systems::Health::update(ecm),
-        Systems::Death::update(ecm),
-        Systems::Score::update(ecm),
-        Systems::Player::update(ecm),
-        Systems::Item::update(ecm),
-        Systems::UI::update(ecm),
-        Systems::Game::update(ecm),
+        Systems::AI::update(cm),
+        Systems::Input::update(cm),
+        Systems::Attack::update(cm),
+        Systems::Movement::update(cm),
+        Systems::Position::update(cm),
+        Systems::Collision::update(cm),
+        Systems::Damage::update(cm),
+        Systems::Health::update(cm),
+        Systems::Death::update(cm),
+        Systems::Score::update(cm),
+        Systems::Player::update(cm),
+        Systems::Item::update(cm),
+        Systems::UI::update(cm),
+        Systems::Game::update(cm),
     };
 
     // clang-format on
-    cleanup(ecm, cleanupFuncs);
+    cleanup(cm, cleanupFuncs);
 
-    auto [gameId, gameComps] = ecm.getUnique<GameComponent>();
+    auto [gameId, gameComps] = cm.getUnique<GameComponent>();
 
     return !gameComps.peek(&GameComponent::isGameOver);
 }

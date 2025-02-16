@@ -5,11 +5,11 @@
 
 namespace Systems::Collision
 {
-inline void cleanup(ECM &ecm)
+inline void cleanup(CM &cm)
 {
 }
 
-inline bool checkFriendlyFire(ECM &ecm, auto &projectileComps, auto &hiveAiComps)
+inline bool checkFriendlyFire(CM &cm, auto &projectileComps, auto &hiveAiComps)
 {
     if (!projectileComps || !hiveAiComps)
         return false;
@@ -19,20 +19,20 @@ inline bool checkFriendlyFire(ECM &ecm, auto &projectileComps, auto &hiveAiComps
     return hiveAiComps && movement == Movement::DOWN;
 }
 
-inline void handleCollisions(ECM &ecm)
+inline void handleCollisions(CM &cm)
 {
-    auto [collisionCheckEventSet] = ecm.getAll<CollisionCheckEvent>();
+    auto [collisionCheckEventSet] = cm.getAll<CollisionCheckEvent>();
     collisionCheckEventSet.each([&](EId eId1, auto &checkEvents) {
-        auto [projectile1, hiveAiComps1] = ecm.get<ProjectileComponent, HiveAIComponent>(eId1);
+        auto [projectile1, hiveAiComps1] = cm.get<ProjectileComponent, HiveAIComponent>(eId1);
         auto [cX, cY, cW, cH] = checkEvents.peek(&CollisionCheckEvent::bounds).box();
-        ecm.getGroup<CollidableComponent, PositionComponent>().each(
+        cm.getGroup<CollidableComponent, PositionComponent>().each(
             [&](EId eId2, auto &collidableComps2, auto &positionComps2) {
                 if (eId1 == eId2)
                     return;
 
-                auto [projectile2, hiveAiComps2] = ecm.get<ProjectileComponent, HiveAIComponent>(eId2);
-                if (checkFriendlyFire(ecm, projectile2, hiveAiComps1) ||
-                    checkFriendlyFire(ecm, projectile1, hiveAiComps2))
+                auto [projectile2, hiveAiComps2] = cm.get<ProjectileComponent, HiveAIComponent>(eId2);
+                if (checkFriendlyFire(cm, projectile2, hiveAiComps1) ||
+                    checkFriendlyFire(cm, projectile1, hiveAiComps2))
                     return;
 
                 auto [pX, pY, pW, pH] = positionComps2.peek(&PositionComponent::bounds).box();
@@ -41,23 +41,23 @@ inline void handleCollisions(ECM &ecm)
                 if (!isX || !isY)
                     return;
 
-                if (ecm.contains<PowerupComponent>(eId2))
+                if (cm.contains<PowerupComponent>(eId2))
                 {
-                    ecm.add<PowerupEvent>(eId1);
-                    ecm.add<DamageEvent>(eId2, eId1);
+                    cm.add<PowerupEvent>(eId1);
+                    cm.add<DamageEvent>(eId2, eId1);
                 }
 
                 EId dealer1 = projectile1 ? projectile1.peek(&ProjectileComponent::shooterId) : eId1;
                 EId dealer2 = projectile2 ? projectile2.peek(&ProjectileComponent::shooterId) : eId2;
-                ecm.add<DamageEvent>(eId1, dealer2);
-                ecm.add<DamageEvent>(eId2, dealer1);
+                cm.add<DamageEvent>(eId1, dealer2);
+                cm.add<DamageEvent>(eId2, dealer1);
             });
     });
 }
 
-inline auto update(ECM &ecm)
+inline auto update(CM &cm)
 {
-    handleCollisions(ecm);
+    handleCollisions(cm);
 
     return cleanup;
 };

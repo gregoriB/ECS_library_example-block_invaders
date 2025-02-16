@@ -4,267 +4,267 @@
 #include "core.hpp"
 #include "renderer.hpp"
 
-inline void createGame(ECM &ecm, Vector2 &size, int tileSize)
+inline void createGame(CM &cm, Vector2 &size, int tileSize)
 {
-    EntityId gameId = ecm.createEntity();
+    EntityId gameId = cm.createEntity();
 
     PRINT("CREATE GAME", gameId)
-    ecm.add<GameMetaComponent>(gameId, size, tileSize);
-    ecm.add<GameComponent>(gameId, Bounds{0, 0, size.x, size.y});
-    ecm.add<UFOTimeoutEffect>(gameId, 12);
-    ecm.add<PowerupTimeoutEffect>(gameId);
+    cm.add<GameMetaComponent>(gameId, size, tileSize);
+    cm.add<GameComponent>(gameId, Bounds{0, 0, size.x, size.y});
+    cm.add<UFOTimeoutEffect>(gameId, 12);
+    cm.add<PowerupTimeoutEffect>(gameId);
 }
 
-inline EntityId hive(ECM &ecm, float x, float y, float w, float h)
+inline EntityId hive(CM &cm, float x, float y, float w, float h)
 {
-    EntityId hiveId = ecm.createEntity();
+    EntityId hiveId = cm.createEntity();
     PRINT("CREATE HIVE", hiveId)
-    ecm.clear<HiveComponent, HiveMovementEffect>();
-    auto [_, gameMetaComps] = ecm.getUnique<GameMetaComponent>();
+    cm.clear<HiveComponent, HiveMovementEffect>();
+    auto [_, gameMetaComps] = cm.getUnique<GameMetaComponent>();
     auto &size = gameMetaComps.peek(&GameMetaComponent::screen);
-    ecm.add<HiveComponent>(hiveId);
-    ecm.add<HiveMovementEffect>(hiveId, Movements::RIGHT);
-    ecm.add<MovementComponent>(hiveId, Vector2{size.x / 200, size.y / 50});
-    ecm.add<AttackEffect>(hiveId, 0, 3);
+    cm.add<HiveComponent>(hiveId);
+    cm.add<HiveMovementEffect>(hiveId, Movements::RIGHT);
+    cm.add<MovementComponent>(hiveId, Vector2{size.x / 200, size.y / 50});
+    cm.add<AttackEffect>(hiveId, 0, 3);
 
     return hiveId;
 }
 
-inline EntityId player(ECM &ecm, float x, float y, float w, float h)
+inline EntityId player(CM &cm, float x, float y, float w, float h)
 {
-    EntityId id = ecm.createEntity();
+    EntityId id = cm.createEntity();
 
     PRINT("CREATE PLAYER", id)
-    ecm.add<CollidableComponent>(id);
-    ecm.add<PlayerComponent>(id);
-    ecm.add<PositionComponent>(id, Bounds{x - (w / 4), y + (h / 2), w * 1.5f, h - (h / 2)});
-    ecm.add<SpriteComponent>(id, Renderer::RGBA{0, 255, 0, 255});
-    ecm.add<MovementComponent>(id, Vector2{w * 10, w * 10});
-    ecm.add<AttackComponent>(id, Movements::UP);
-    ecm.add<HealthComponent>(id, 10);
-    ecm.add<DamageComponent>(id, 25.0f);
-    ecm.add<ScoreComponent>(id, 0);
-    ecm.add<LivesComponent>(id, 3);
+    cm.add<CollidableComponent>(id);
+    cm.add<PlayerComponent>(id);
+    cm.add<PositionComponent>(id, Bounds{x - (w / 4), y + (h / 2), w * 1.5f, h - (h / 2)});
+    cm.add<SpriteComponent>(id, Renderer::RGBA{0, 255, 0, 255});
+    cm.add<MovementComponent>(id, Vector2{w * 10, w * 10});
+    cm.add<AttackComponent>(id, Movements::UP);
+    cm.add<HealthComponent>(id, 10);
+    cm.add<DamageComponent>(id, 25.0f);
+    cm.add<ScoreComponent>(id, 0);
+    cm.add<LivesComponent>(id, 3);
 
     return id;
 };
 
-inline EntityId playerScore(ECM &ecm, float x, float y, float w, float h)
+inline EntityId playerScore(CM &cm, float x, float y, float w, float h)
 {
-    EntityId id = ecm.createEntity();
+    EntityId id = cm.createEntity();
 
     PRINT("CREATE PLAYER SCORE", id)
-    ecm.add<PositionComponent>(id, Bounds{x, y, w, h});
-    ecm.add<SpriteComponent>(id, Renderer::RGBA{0, 0, 0, 0});
-    ecm.add<UIComponent>(id);
-    ecm.add<TextComponent>(id, "SCORE: 0");
-    ecm.add<PlayerScoreCardComponent>(id);
+    cm.add<PositionComponent>(id, Bounds{x, y, w, h});
+    cm.add<SpriteComponent>(id, Renderer::RGBA{0, 0, 0, 0});
+    cm.add<UIComponent>(id);
+    cm.add<TextComponent>(id, "SCORE: 0");
+    cm.add<PlayerScoreCardComponent>(id);
 
     return id;
 };
 
-inline EntityId playerLives(ECM &ecm, float x, float y, float w, float h)
+inline EntityId playerLives(CM &cm, float x, float y, float w, float h)
 {
-    EntityId id = ecm.createEntity();
+    EntityId id = cm.createEntity();
 
     PRINT("CREATE PLAYER LIVES", id)
-    ecm.add<PositionComponent>(id, Bounds{x, y, w, h});
-    ecm.add<SpriteComponent>(id, Renderer::RGBA{0, 0, 0, 0});
-    ecm.add<UIComponent>(id);
-    ecm.add<TextComponent>(id, "LIVES: 3");
-    ecm.add<PlayerLifeCardComponent>(id);
+    cm.add<PositionComponent>(id, Bounds{x, y, w, h});
+    cm.add<SpriteComponent>(id, Renderer::RGBA{0, 0, 0, 0});
+    cm.add<UIComponent>(id);
+    cm.add<TextComponent>(id, "LIVES: 3");
+    cm.add<PlayerLifeCardComponent>(id);
 
     return id;
 };
 
-inline EntityId createUfo(ECM &ecm, float x, float y)
+inline EntityId createUfo(CM &cm, float x, float y)
 {
-    EntityId id = ecm.createEntity();
+    EntityId id = cm.createEntity();
     PRINT("UFO SPAWNED", id)
-    ecm.add<UFOAIComponent>(id);
-    auto [_, gameMetaComps] = ecm.getUnique<GameMetaComponent>();
+    cm.add<UFOAIComponent>(id);
+    auto [_, gameMetaComps] = cm.getUnique<GameMetaComponent>();
     auto &size = gameMetaComps.peek(&GameMetaComponent::screen);
     const float &tileSize = gameMetaComps.peek(&GameMetaComponent::tileSize);
     float diff = 15;
     float newW = tileSize + diff;
     float newX = x - newW;
-    ecm.add<CollidableComponent>(id);
-    ecm.add<PositionComponent>(id, Bounds{newX, y, newW, tileSize});
-    ecm.add<AttackComponent>(id, Movements::DOWN);
-    ecm.add<HealthComponent>(id, 10);
-    ecm.add<DamageComponent>(id, 100);
-    ecm.add<PointsComponent>(id, 150);
-    ecm.add<MovementComponent>(id, Vector2{tileSize * 4, tileSize * 4});
-    ecm.add<MovementEffect>(id, Vector2{tileSize * size.x, tileSize / 2});
-    ecm.add<SpriteComponent>(id, Renderer::RGBA{255, 0, 0, 255});
+    cm.add<CollidableComponent>(id);
+    cm.add<PositionComponent>(id, Bounds{newX, y, newW, tileSize});
+    cm.add<AttackComponent>(id, Movements::DOWN);
+    cm.add<HealthComponent>(id, 10);
+    cm.add<DamageComponent>(id, 100);
+    cm.add<PointsComponent>(id, 150);
+    cm.add<MovementComponent>(id, Vector2{tileSize * 4, tileSize * 4});
+    cm.add<MovementEffect>(id, Vector2{tileSize * size.x, tileSize / 2});
+    cm.add<SpriteComponent>(id, Renderer::RGBA{255, 0, 0, 255});
     float randomDelay = std::rand() % 5;
-    ecm.add<AttackEffect>(id, randomDelay);
+    cm.add<AttackEffect>(id, randomDelay);
 
     return id;
 };
 
-inline EntityId hiveAlien(ECM &ecm, float x, float y, float w, float h)
+inline EntityId hiveAlien(CM &cm, float x, float y, float w, float h)
 {
-    EntityId id = ecm.createEntity();
-    auto [hiveId, _] = ecm.getUnique<HiveComponent>();
+    EntityId id = cm.createEntity();
+    auto [hiveId, _] = cm.getUnique<HiveComponent>();
     float diff = 7;
-    ecm.add<CollidableComponent>(id);
-    ecm.add<AIComponent>(id);
-    ecm.add<HiveAIComponent>(id, hiveId);
-    ecm.add<PositionComponent>(id, Bounds{x - diff, y, w + diff, h});
-    ecm.add<MovementComponent>(id, Vector2{w / 2, w});
-    ecm.add<AttackComponent>(id, Movements::DOWN);
-    ecm.add<HealthComponent>(id, 10);
-    ecm.add<DamageComponent>(id, 25.0f);
+    cm.add<CollidableComponent>(id);
+    cm.add<AIComponent>(id);
+    cm.add<HiveAIComponent>(id, hiveId);
+    cm.add<PositionComponent>(id, Bounds{x - diff, y, w + diff, h});
+    cm.add<MovementComponent>(id, Vector2{w / 2, w});
+    cm.add<AttackComponent>(id, Movements::DOWN);
+    cm.add<HealthComponent>(id, 10);
+    cm.add<DamageComponent>(id, 25.0f);
 
     return id;
 };
 
-inline EntityId hiveAlienSmall(ECM &ecm, float x, float y, float w, float h)
+inline EntityId hiveAlienSmall(CM &cm, float x, float y, float w, float h)
 {
-    EntityId id = hiveAlien(ecm, x, y, w, h);
-    ecm.add<PointsComponent>(id, 10);
-    ecm.add<SpriteComponent>(id, Renderer::RGBA{205, 205, 205, 255});
+    EntityId id = hiveAlien(cm, x, y, w, h);
+    cm.add<PointsComponent>(id, 10);
+    cm.add<SpriteComponent>(id, Renderer::RGBA{205, 205, 205, 255});
 
     return id;
 }
 
-inline EntityId hiveAlienMedium(ECM &ecm, float x, float y, float w, float h)
+inline EntityId hiveAlienMedium(CM &cm, float x, float y, float w, float h)
 {
-    EntityId id = hiveAlien(ecm, x, y, w, h);
-    ecm.add<PointsComponent>(id, 20);
-    ecm.add<SpriteComponent>(id, Renderer::RGBA{230, 230, 230, 255});
+    EntityId id = hiveAlien(cm, x, y, w, h);
+    cm.add<PointsComponent>(id, 20);
+    cm.add<SpriteComponent>(id, Renderer::RGBA{230, 230, 230, 255});
 
     return id;
 }
 
-inline EntityId hiveAlienLarge(ECM &ecm, float x, float y, float w, float h)
+inline EntityId hiveAlienLarge(CM &cm, float x, float y, float w, float h)
 {
-    EntityId id = hiveAlien(ecm, x, y, w, h);
-    ecm.add<PointsComponent>(id, 40);
-    ecm.add<SpriteComponent>(id, Renderer::RGBA{255, 255, 255, 255});
+    EntityId id = hiveAlien(cm, x, y, w, h);
+    cm.add<PointsComponent>(id, 40);
+    cm.add<SpriteComponent>(id, Renderer::RGBA{255, 255, 255, 255});
 
     return id;
 }
 
-inline EntityId collidableObstacleBlock(ECM &ecm, float x, float y, float w, float h)
+inline EntityId collidableObstacleBlock(CM &cm, float x, float y, float w, float h)
 {
-    EntityId id = ecm.createEntity();
-    ecm.add<ObstacleComponent>(id);
-    ecm.add<CollidableComponent>(id);
-    ecm.add<DamageComponent>(id, 1);
+    EntityId id = cm.createEntity();
+    cm.add<ObstacleComponent>(id);
+    cm.add<CollidableComponent>(id);
+    cm.add<DamageComponent>(id, 1);
 
     return id;
 }
 
-inline EntityId titleBlockSm(ECM &ecm, float x, float y, float w, float h)
+inline EntityId titleBlockSm(CM &cm, float x, float y, float w, float h)
 {
-    EntityId id = collidableObstacleBlock(ecm, x, y, w, h);
-    ecm.add<SpriteComponent>(id, Renderer::RGBA{0, 255, 0, 255});
-    ecm.add<PositionComponent>(id, Bounds{x, y, w - 5, h});
-    ecm.add<HealthComponent>(id, 50);
-    ecm.add<TitleScreenComponent>(id);
+    EntityId id = collidableObstacleBlock(cm, x, y, w, h);
+    cm.add<SpriteComponent>(id, Renderer::RGBA{0, 255, 0, 255});
+    cm.add<PositionComponent>(id, Bounds{x, y, w - 5, h});
+    cm.add<HealthComponent>(id, 50);
+    cm.add<TitleScreenComponent>(id);
 
     return id;
 }
 
-inline EntityId titleBlock(ECM &ecm, float x, float y, float w, float h)
+inline EntityId titleBlock(CM &cm, float x, float y, float w, float h)
 {
-    EntityId id = collidableObstacleBlock(ecm, x, y, w, h);
-    ecm.add<SpriteComponent>(id, Renderer::RGBA{0, 255, 0, 255});
-    ecm.add<PositionComponent>(id, Bounds{x, y, w, h});
-    ecm.add<HealthComponent>(id, 50);
-    ecm.add<TitleScreenComponent>(id);
+    EntityId id = collidableObstacleBlock(cm, x, y, w, h);
+    cm.add<SpriteComponent>(id, Renderer::RGBA{0, 255, 0, 255});
+    cm.add<PositionComponent>(id, Bounds{x, y, w, h});
+    cm.add<HealthComponent>(id, 50);
+    cm.add<TitleScreenComponent>(id);
 
     return id;
 }
 
-inline EntityId redBlock(ECM &ecm, float x, float y, float w, float h)
+inline EntityId redBlock(CM &cm, float x, float y, float w, float h)
 {
-    EntityId id = collidableObstacleBlock(ecm, x, y, w, h);
-    ecm.add<SpriteComponent>(id, Renderer::RGBA{255, 0, 0, 255});
-    ecm.add<PositionComponent>(id, Bounds{x, y, w, h});
-    ecm.add<HealthComponent>(id, 1);
-    ecm.add<PointsComponent>(id, 1);
+    EntityId id = collidableObstacleBlock(cm, x, y, w, h);
+    cm.add<SpriteComponent>(id, Renderer::RGBA{255, 0, 0, 255});
+    cm.add<PositionComponent>(id, Bounds{x, y, w, h});
+    cm.add<HealthComponent>(id, 1);
+    cm.add<PointsComponent>(id, 1);
 
     return id;
 }
 
-inline EntityId startBlock(ECM &ecm, float x, float y, float w, float h)
+inline EntityId startBlock(CM &cm, float x, float y, float w, float h)
 {
-    EntityId id = collidableObstacleBlock(ecm, x, y, w, h);
-    ecm.add<SpriteComponent>(id, Renderer::RGBA{67, 189, 255, 255});
-    ecm.add<PositionComponent>(id, Bounds{x, y, w, h});
-    ecm.add<HealthComponent>(id, 1);
-    ecm.add<StartGameTriggerComponent>(id);
-    ecm.add<TitleScreenComponent>(id);
+    EntityId id = collidableObstacleBlock(cm, x, y, w, h);
+    cm.add<SpriteComponent>(id, Renderer::RGBA{67, 189, 255, 255});
+    cm.add<PositionComponent>(id, Bounds{x, y, w, h});
+    cm.add<HealthComponent>(id, 1);
+    cm.add<StartGameTriggerComponent>(id);
+    cm.add<TitleScreenComponent>(id);
 
     return id;
 }
 
-inline EntityId greenBlock(ECM &ecm, float x, float y, float w, float h)
+inline EntityId greenBlock(CM &cm, float x, float y, float w, float h)
 {
-    EntityId id = collidableObstacleBlock(ecm, x, y, w, h);
-    ecm.add<SpriteComponent>(id, Renderer::RGBA{0, 255, 0, 255});
-    ecm.add<PositionComponent>(id, Bounds{x, y, w, h});
-    ecm.add<HealthComponent>(id, 100);
+    EntityId id = collidableObstacleBlock(cm, x, y, w, h);
+    cm.add<SpriteComponent>(id, Renderer::RGBA{0, 255, 0, 255});
+    cm.add<PositionComponent>(id, Bounds{x, y, w, h});
+    cm.add<HealthComponent>(id, 100);
 
     return id;
 }
 
-inline EntityId createProjectile(ECM &ecm, Bounds bounds)
+inline EntityId createProjectile(CM &cm, Bounds bounds)
 {
-    EntityId id = ecm.createEntity();
+    EntityId id = cm.createEntity();
     auto [w, h] = bounds.size;
-    ecm.add<CollidableComponent>(id);
-    ecm.add<MovementComponent>(id, Vector2{0, w * 10});
-    ecm.add<SpriteComponent>(id, Renderer::RGBA{255, 255, 255, 255});
-    ecm.add<HealthComponent>(id, 1);
+    cm.add<CollidableComponent>(id);
+    cm.add<MovementComponent>(id, Vector2{0, w * 10});
+    cm.add<SpriteComponent>(id, Renderer::RGBA{255, 255, 255, 255});
+    cm.add<HealthComponent>(id, 1);
     return id;
 };
 
-inline EntityId createUpwardProjectile(ECM &ecm, EntityId shooterId, Bounds bounds)
+inline EntityId createUpwardProjectile(CM &cm, EntityId shooterId, Bounds bounds)
 {
     auto [x, y, w, h] = bounds.get();
     float newW = w / 5;
     float newH = h * 2;
     float newY = y - newH - 1;
     float newX = x + (w / 2) - (newW / 2);
-    EntityId id = createProjectile(ecm, bounds);
-    ecm.add<MovementEffect>(id, Vector2{newX, -10000});
-    ecm.add<PositionComponent>(id, Bounds{newX, newY, newW, newH});
+    EntityId id = createProjectile(cm, bounds);
+    cm.add<MovementEffect>(id, Vector2{newX, -10000});
+    cm.add<PositionComponent>(id, Bounds{newX, newY, newW, newH});
     using Movements = decltype(ProjectileComponent::movement);
-    ecm.add<ProjectileComponent>(id, shooterId, Movements::UP);
+    cm.add<ProjectileComponent>(id, shooterId, Movements::UP);
 
     return id;
 }
 
-inline EntityId createDownwardProjectile(ECM &ecm, EntityId shooterId, Bounds bounds)
+inline EntityId createDownwardProjectile(CM &cm, EntityId shooterId, Bounds bounds)
 {
     auto [x, y, w, h] = bounds.get();
     float newW = w / 5;
     float newH = h;
     float newY = y + newH;
     float newX = x + (w / 2) - (newW / 2);
-    EntityId id = createProjectile(ecm, bounds);
-    ecm.add<MovementEffect>(id, Vector2{newX, 10000});
-    ecm.add<PositionComponent>(id, Bounds{newX, newY + 1, newW, newH});
+    EntityId id = createProjectile(cm, bounds);
+    cm.add<MovementEffect>(id, Vector2{newX, 10000});
+    cm.add<PositionComponent>(id, Bounds{newX, newY + 1, newW, newH});
     using Movements = decltype(ProjectileComponent::movement);
-    ecm.add<ProjectileComponent>(id, shooterId, Movements::DOWN);
-    ecm.add<PointsComponent>(id, 10);
+    cm.add<ProjectileComponent>(id, shooterId, Movements::DOWN);
+    cm.add<PointsComponent>(id, 10);
 
     return id;
 }
 
-inline EntityId createPowerup(ECM &ecm, Bounds bounds)
+inline EntityId createPowerup(CM &cm, Bounds bounds)
 {
-    EntityId id = ecm.createEntity();
+    EntityId id = cm.createEntity();
     PRINT("POWERUP SPAWNED", id)
-    ecm.add<CollidableComponent>(id);
-    ecm.add<HealthComponent>(id, 1);
-    ecm.add<SpriteComponent>(id, Renderer::RGBA{255, 255, 0, 255});
-    ecm.add<PositionComponent>(id, bounds);
-    ecm.add<PowerupComponent>(id);
+    cm.add<CollidableComponent>(id);
+    cm.add<HealthComponent>(id, 1);
+    cm.add<SpriteComponent>(id, Renderer::RGBA{255, 255, 0, 255});
+    cm.add<PositionComponent>(id, bounds);
+    cm.add<PowerupComponent>(id);
 
     return id;
 }
