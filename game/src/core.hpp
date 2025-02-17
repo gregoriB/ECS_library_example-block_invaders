@@ -19,7 +19,9 @@
 
 using EntityId = uint32_t;
 using EId = EntityId;
-using CM = ECS::EntityComponentManager<EntityId>;
+using CM = ECS::Manager<EntityId>;
+
+#define PRINT(...) ECS::internal::Utilities::print(__VA_ARGS__);
 
 constexpr bool BREAK = false;
 constexpr bool CONTINUE = true;

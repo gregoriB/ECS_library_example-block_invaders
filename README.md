@@ -38,3 +38,4 @@ COMING SOON
    [sdl_url]: <https://github.com/libsdl-org/SDL>
    [sdl_ttf_url]: <https://github.com/libsdl-org/SDL_ttf>
    [cmake_url]: <https://cmake.org>
+   [image_url]: <https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExcjZtaDVzd2hocXVkMGV3dmtpYXIydnZyYWI3c2p6ODg1ZHd5NXFmbCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/CRtrK03bYR0YD9dCEy/giphy.gif>

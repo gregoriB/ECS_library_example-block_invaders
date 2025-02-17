@@ -4,6 +4,7 @@
 #include "../core.hpp"
 #include "../entities.hpp"
 #include "../utilities.hpp"
+#include "ecs/ecs.hpp"
 
 namespace Systems::AI
 {
@@ -202,7 +203,7 @@ inline void updateHiveMovement(CM &cm, EId hiveId, auto &hiveMovementEffects)
     });
 }
 
-inline bool checkShouldHiveAIMove(ECS::ComponentsWrapper<HiveMovementEffect> &hiveMovementEffects)
+inline bool checkShouldHiveAIMove(ECS::Components<HiveMovementEffect> &hiveMovementEffects)
 {
     return !!(hiveMovementEffects.find([&](const HiveMovementEffect &hiveMovementEffect) {
         return hiveMovementEffect.timer->hasElapsed();

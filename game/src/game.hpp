@@ -93,7 +93,7 @@ class Game
     }
 
   private:
-    ECS::EntityComponentManager<EntityId> m_entityComponentManager{};
+    ECS::Manager<EntityId> m_entityComponentManager{};
     ScreenConfig m_screenConfig{};
     Renderer::Manager<EntityId> m_renderManager{m_screenConfig};
 };

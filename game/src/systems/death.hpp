@@ -15,7 +15,7 @@ inline void cleanup(CM &cm)
 inline auto update(CM &cm)
 {
     auto [deathSet] = cm.getAll<DeathEvent>();
-    deathSet.each([&](EId eId, ECS::ComponentsWrapper<DeathEvent> &deathEvents) {
+    deathSet.each([&](EId eId, ECS::Components<DeathEvent> &deathEvents) {
         auto [playerId, _] = cm.getUnique<PlayerComponent>();
         if (eId == playerId)
         {
