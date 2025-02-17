@@ -74,7 +74,7 @@ inline void stageBuilder(CM &cm, const std::vector<std::string_view> &stage)
 inline void setup(CM &cm, ScreenConfig &screen)
 {
     PRINT("STARTING GAME")
-    auto stage = Stages::getStage(-1);
+    auto stage = Stages::getStage(999);
     int tileSize = screen.width / stage[0].size();
     Vector2 size{static_cast<float>(screen.width), static_cast<float>(screen.height)};
 
