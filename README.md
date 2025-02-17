@@ -3,7 +3,9 @@
 
 Block invaders is a pure ECS approximation of Space Invaders, using SDL2 for input and rendering.
 
-![](https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNTBjNXp0cjZldzB6Nm14aDVzdXZtODdsNWdlM2ZxdXUyMGdzMTF2YiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Zo4QRkJ3SX7sjVHtuM/giphy.gif)
+<p align="center">
+  <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExcjZtaDVzd2hocXVkMGV3dmtpYXIydnZyYWI3c2p6ODg1ZHd5NXFmbCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/CRtrK03bYR0YD9dCEy/giphy.gif" />
+</p>
 
 ## Gameplay
 - Defeat the alien horde before it can reach your ship
