@@ -6,7 +6,7 @@
 
 namespace Systems::Movement
 {
-inline void cleanup(CM &cm)
+inline void cleanup(ComponentManager &cm)
 {
     Utilities::cleanupEffect<MovementEffect>(cm);
 }
@@ -32,7 +32,7 @@ inline Bounds calculateNewBounds(auto &movementEvents, const PositionComponent &
     return Bounds{pX + rX, pY + rY, pW, pH};
 }
 
-inline void applyMovementEffects(CM &cm)
+inline void applyMovementEffects(ComponentManager &cm)
 {
     auto dt = Utilities::getDeltaTime(cm);
     cm.getGroup<MovementEffect, MovementComponent, PositionComponent>().each(
@@ -57,7 +57,7 @@ inline void applyMovementEffects(CM &cm)
         });
 }
 
-inline void updateOtherMovement(CM &cm)
+inline void updateOtherMovement(ComponentManager &cm)
 {
     auto [movementEventSet] = cm.getAll<MovementEvent>();
     movementEventSet.each([&](EId eId, auto &movementEvents) {
@@ -91,7 +91,7 @@ inline void updateOtherMovement(CM &cm)
     });
 }
 
-inline auto update(CM &cm)
+inline auto update(ComponentManager &cm)
 {
     applyMovementEffects(cm);
     updateOtherMovement(cm);

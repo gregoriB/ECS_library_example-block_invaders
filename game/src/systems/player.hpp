@@ -5,11 +5,11 @@
 
 namespace Systems::Player
 {
-inline void cleanup(CM &cm)
+inline void cleanup(ComponentManager &cm)
 {
 }
 
-inline auto update(CM &cm)
+inline auto update(ComponentManager &cm)
 {
     auto [playerId, playerComps] = cm.getUnique<PlayerComponent>();
     auto [playerEventSet] = cm.getAll<PlayerEvent>();

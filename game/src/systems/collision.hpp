@@ -5,11 +5,11 @@
 
 namespace Systems::Collision
 {
-inline void cleanup(CM &cm)
+inline void cleanup(ComponentManager &cm)
 {
 }
 
-inline bool checkFriendlyFire(CM &cm, auto &projectileComps, auto &hiveAiComps)
+inline bool checkFriendlyFire(ComponentManager &cm, auto &projectileComps, auto &hiveAiComps)
 {
     if (!projectileComps || !hiveAiComps)
         return false;
@@ -19,7 +19,7 @@ inline bool checkFriendlyFire(CM &cm, auto &projectileComps, auto &hiveAiComps)
     return hiveAiComps && movement == Movement::DOWN;
 }
 
-inline void handleCollisions(CM &cm)
+inline void handleCollisions(ComponentManager &cm)
 {
     auto [collisionCheckEventSet] = cm.getAll<CollisionCheckEvent>();
     collisionCheckEventSet.each([&](EId eId1, auto &checkEvents) {
@@ -55,7 +55,7 @@ inline void handleCollisions(CM &cm)
     });
 }
 
-inline auto update(CM &cm)
+inline auto update(ComponentManager &cm)
 {
     handleCollisions(cm);
 

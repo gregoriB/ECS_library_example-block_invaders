@@ -6,11 +6,11 @@
 
 namespace Systems::Input
 {
-inline void cleanup(CM &cm)
+inline void cleanup(ComponentManager &cm)
 {
 }
 
-inline void movePlayer(CM &cm)
+inline void movePlayer(ComponentManager &cm)
 {
     float dt = Utilities::getDeltaTime(cm);
     auto [playerInputEventSet] = cm.getAll<PlayerInputEvent>();
@@ -60,7 +60,7 @@ inline void movePlayer(CM &cm)
     });
 }
 
-inline auto update(CM &cm)
+inline auto update(ComponentManager &cm)
 {
     movePlayer(cm);
 

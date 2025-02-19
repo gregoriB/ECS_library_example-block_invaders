@@ -4,7 +4,7 @@
 #include "core.hpp"
 #include "renderer.hpp"
 
-inline void createGame(CM &cm, Vector2 &size, int tileSize)
+inline void createGame(ComponentManager &cm, Vector2 &size, int tileSize)
 {
     EntityId gameId = cm.createEntity();
 
@@ -15,7 +15,7 @@ inline void createGame(CM &cm, Vector2 &size, int tileSize)
     cm.add<PowerupTimeoutEffect>(gameId);
 }
 
-inline EntityId hive(CM &cm, float x, float y, float w, float h)
+inline EntityId hive(ComponentManager &cm, float x, float y, float w, float h)
 {
     EntityId hiveId = cm.createEntity();
     PRINT("CREATE HIVE", hiveId)
@@ -30,7 +30,7 @@ inline EntityId hive(CM &cm, float x, float y, float w, float h)
     return hiveId;
 }
 
-inline EntityId player(CM &cm, float x, float y, float w, float h)
+inline EntityId player(ComponentManager &cm, float x, float y, float w, float h)
 {
     EntityId id = cm.createEntity();
 
@@ -49,7 +49,7 @@ inline EntityId player(CM &cm, float x, float y, float w, float h)
     return id;
 };
 
-inline EntityId playerScore(CM &cm, float x, float y, float w, float h)
+inline EntityId playerScore(ComponentManager &cm, float x, float y, float w, float h)
 {
     EntityId id = cm.createEntity();
 
@@ -63,7 +63,7 @@ inline EntityId playerScore(CM &cm, float x, float y, float w, float h)
     return id;
 };
 
-inline EntityId playerLives(CM &cm, float x, float y, float w, float h)
+inline EntityId playerLives(ComponentManager &cm, float x, float y, float w, float h)
 {
     EntityId id = cm.createEntity();
 
@@ -77,7 +77,7 @@ inline EntityId playerLives(CM &cm, float x, float y, float w, float h)
     return id;
 };
 
-inline EntityId createUfo(CM &cm, float x, float y)
+inline EntityId createUfo(ComponentManager &cm, float x, float y)
 {
     EntityId id = cm.createEntity();
     PRINT("UFO SPAWNED", id)
@@ -103,7 +103,7 @@ inline EntityId createUfo(CM &cm, float x, float y)
     return id;
 };
 
-inline EntityId hiveAlien(CM &cm, float x, float y, float w, float h)
+inline EntityId hiveAlien(ComponentManager &cm, float x, float y, float w, float h)
 {
     EntityId id = cm.createEntity();
     auto [hiveId, _] = cm.getUnique<HiveComponent>();
@@ -120,7 +120,7 @@ inline EntityId hiveAlien(CM &cm, float x, float y, float w, float h)
     return id;
 };
 
-inline EntityId hiveAlienSmall(CM &cm, float x, float y, float w, float h)
+inline EntityId hiveAlienSmall(ComponentManager &cm, float x, float y, float w, float h)
 {
     EntityId id = hiveAlien(cm, x, y, w, h);
     cm.add<PointsComponent>(id, 10);
@@ -129,7 +129,7 @@ inline EntityId hiveAlienSmall(CM &cm, float x, float y, float w, float h)
     return id;
 }
 
-inline EntityId hiveAlienMedium(CM &cm, float x, float y, float w, float h)
+inline EntityId hiveAlienMedium(ComponentManager &cm, float x, float y, float w, float h)
 {
     EntityId id = hiveAlien(cm, x, y, w, h);
     cm.add<PointsComponent>(id, 20);
@@ -138,7 +138,7 @@ inline EntityId hiveAlienMedium(CM &cm, float x, float y, float w, float h)
     return id;
 }
 
-inline EntityId hiveAlienLarge(CM &cm, float x, float y, float w, float h)
+inline EntityId hiveAlienLarge(ComponentManager &cm, float x, float y, float w, float h)
 {
     EntityId id = hiveAlien(cm, x, y, w, h);
     cm.add<PointsComponent>(id, 40);
@@ -147,7 +147,7 @@ inline EntityId hiveAlienLarge(CM &cm, float x, float y, float w, float h)
     return id;
 }
 
-inline EntityId collidableObstacleBlock(CM &cm, float x, float y, float w, float h)
+inline EntityId collidableObstacleBlock(ComponentManager &cm, float x, float y, float w, float h)
 {
     EntityId id = cm.createEntity();
     cm.add<ObstacleComponent>(id);
@@ -157,7 +157,7 @@ inline EntityId collidableObstacleBlock(CM &cm, float x, float y, float w, float
     return id;
 }
 
-inline EntityId titleBlockSm(CM &cm, float x, float y, float w, float h)
+inline EntityId titleBlockSm(ComponentManager &cm, float x, float y, float w, float h)
 {
     EntityId id = collidableObstacleBlock(cm, x, y, w, h);
     cm.add<SpriteComponent>(id, Renderer::RGBA{0, 255, 0, 255});
@@ -168,7 +168,7 @@ inline EntityId titleBlockSm(CM &cm, float x, float y, float w, float h)
     return id;
 }
 
-inline EntityId titleBlock(CM &cm, float x, float y, float w, float h)
+inline EntityId titleBlock(ComponentManager &cm, float x, float y, float w, float h)
 {
     EntityId id = collidableObstacleBlock(cm, x, y, w, h);
     cm.add<SpriteComponent>(id, Renderer::RGBA{0, 255, 0, 255});
@@ -179,7 +179,7 @@ inline EntityId titleBlock(CM &cm, float x, float y, float w, float h)
     return id;
 }
 
-inline EntityId redBlock(CM &cm, float x, float y, float w, float h)
+inline EntityId redBlock(ComponentManager &cm, float x, float y, float w, float h)
 {
     EntityId id = collidableObstacleBlock(cm, x, y, w, h);
     cm.add<SpriteComponent>(id, Renderer::RGBA{255, 0, 0, 255});
@@ -190,7 +190,7 @@ inline EntityId redBlock(CM &cm, float x, float y, float w, float h)
     return id;
 }
 
-inline EntityId startBlock(CM &cm, float x, float y, float w, float h)
+inline EntityId startBlock(ComponentManager &cm, float x, float y, float w, float h)
 {
     EntityId id = collidableObstacleBlock(cm, x, y, w, h);
     cm.add<SpriteComponent>(id, Renderer::RGBA{67, 189, 255, 255});
@@ -202,7 +202,7 @@ inline EntityId startBlock(CM &cm, float x, float y, float w, float h)
     return id;
 }
 
-inline EntityId greenBlock(CM &cm, float x, float y, float w, float h)
+inline EntityId greenBlock(ComponentManager &cm, float x, float y, float w, float h)
 {
     EntityId id = collidableObstacleBlock(cm, x, y, w, h);
     cm.add<SpriteComponent>(id, Renderer::RGBA{0, 255, 0, 255});
@@ -212,7 +212,7 @@ inline EntityId greenBlock(CM &cm, float x, float y, float w, float h)
     return id;
 }
 
-inline EntityId createProjectile(CM &cm, Bounds bounds)
+inline EntityId createProjectile(ComponentManager &cm, Bounds bounds)
 {
     EntityId id = cm.createEntity();
     auto [w, h] = bounds.size;
@@ -223,7 +223,7 @@ inline EntityId createProjectile(CM &cm, Bounds bounds)
     return id;
 };
 
-inline EntityId createUpwardProjectile(CM &cm, EntityId shooterId, Bounds bounds)
+inline EntityId createUpwardProjectile(ComponentManager &cm, EntityId shooterId, Bounds bounds)
 {
     auto [x, y, w, h] = bounds.get();
     float newW = w / 5;
@@ -239,7 +239,7 @@ inline EntityId createUpwardProjectile(CM &cm, EntityId shooterId, Bounds bounds
     return id;
 }
 
-inline EntityId createDownwardProjectile(CM &cm, EntityId shooterId, Bounds bounds)
+inline EntityId createDownwardProjectile(ComponentManager &cm, EntityId shooterId, Bounds bounds)
 {
     auto [x, y, w, h] = bounds.get();
     float newW = w / 5;
@@ -256,7 +256,7 @@ inline EntityId createDownwardProjectile(CM &cm, EntityId shooterId, Bounds boun
     return id;
 }
 
-inline EntityId createPowerup(CM &cm, Bounds bounds)
+inline EntityId createPowerup(ComponentManager &cm, Bounds bounds)
 {
     EntityId id = cm.createEntity();
     PRINT("POWERUP SPAWNED", id)

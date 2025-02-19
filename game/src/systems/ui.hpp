@@ -5,11 +5,11 @@
 
 namespace Systems::UI
 {
-inline void cleanup(CM &cm)
+inline void cleanup(ComponentManager &cm)
 {
 }
 
-inline auto update(CM &cm)
+inline auto update(ComponentManager &cm)
 {
     auto [uiEventSet] = cm.getAll<UIEvent>();
     uiEventSet.each([&](EId eId, auto &uiEvents) {

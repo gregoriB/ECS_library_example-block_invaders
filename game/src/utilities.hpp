@@ -17,7 +17,7 @@ inline auto &first(auto value)
     return std::get<0>(value);
 }
 
-inline void registerTransformations(CM &cm)
+inline void registerTransformations(ComponentManager &cm)
 {
     cm.registerTransformation<MovementComponent>([&](auto eId, MovementComponent comp) {
         auto &projectile = first(cm.get<ProjectileComponent>(eId));
@@ -34,7 +34,7 @@ inline void registerTransformations(CM &cm)
     });
 }
 
-inline void stageBuilder(CM &cm, const std::vector<std::string_view> &stage, int tileSize)
+inline void stageBuilder(ComponentManager &cm, const std::vector<std::string_view> &stage, int tileSize)
 {
     for (int row = 0; row < stage.size(); ++row)
     {
@@ -49,7 +49,7 @@ inline void stageBuilder(CM &cm, const std::vector<std::string_view> &stage, int
     }
 };
 
-inline void uiBuilder(CM &cm, const std::vector<std::string_view> &ui, int tileSize)
+inline void uiBuilder(ComponentManager &cm, const std::vector<std::string_view> &ui, int tileSize)
 {
     for (int row = 0; row < ui.size(); ++row)
     {
@@ -64,14 +64,14 @@ inline void uiBuilder(CM &cm, const std::vector<std::string_view> &ui, int tileS
     }
 };
 
-inline void stageBuilder(CM &cm, const std::vector<std::string_view> &stage)
+inline void stageBuilder(ComponentManager &cm, const std::vector<std::string_view> &stage)
 {
     auto [_, gameMetaComps] = cm.getUnique<GameMetaComponent>();
     auto &size = gameMetaComps.peek(&GameMetaComponent::screen);
     return stageBuilder(cm, stage, size.x / stage[0].size());
 }
 
-inline void setup(CM &cm, ScreenConfig &screen)
+inline void setup(ComponentManager &cm, ScreenConfig &screen)
 {
     PRINT("STARTING GAME")
     auto stage = Stages::getStage(999);
@@ -85,7 +85,7 @@ inline void setup(CM &cm, ScreenConfig &screen)
     uiBuilder(cm, ui, tileSize);
 };
 
-inline void nextStage(CM &cm, int stage)
+inline void nextStage(ComponentManager &cm, int stage)
 {
     PRINT("STAGE:", stage, "LOADED")
     cm.clear<HiveMovementEffect>();
@@ -93,19 +93,19 @@ inline void nextStage(CM &cm, int stage)
     stageBuilder(cm, Stages::getStage(stage));
 };
 
-inline void updateDeltaTime(CM &cm, float delta)
+inline void updateDeltaTime(ComponentManager &cm, float delta)
 {
     auto [gameId, gameMetaComps] = cm.getUnique<GameMetaComponent>();
     gameMetaComps.mutate([&](GameMetaComponent &gameMetaComp) { gameMetaComp.deltaTime = delta; });
 };
 
-inline float getDeltaTime(CM &cm)
+inline float getDeltaTime(ComponentManager &cm)
 {
     auto [gameId, gameMetaComps] = cm.getUnique<GameMetaComponent>();
     return gameMetaComps.peek(&GameMetaComponent::deltaTime);
 };
 
-inline void registerPlayerInputs(CM &cm, std::vector<Inputs> &inputs)
+inline void registerPlayerInputs(ComponentManager &cm, std::vector<Inputs> &inputs)
 {
     auto [playerId, _] = cm.getUnique<PlayerComponent>();
     using Movements = decltype(PlayerInputEvent::movement);
@@ -135,7 +135,7 @@ inline void registerPlayerInputs(CM &cm, std::vector<Inputs> &inputs)
     }
 };
 
-inline void registerAIInputs(CM &cm, EId eId, std::vector<Inputs> &inputs)
+inline void registerAIInputs(ComponentManager &cm, EId eId, std::vector<Inputs> &inputs)
 {
     using Movements = decltype(AIInputEvent::movement);
     using Actions = decltype(AIInputEvent::action);
@@ -164,13 +164,13 @@ inline void registerAIInputs(CM &cm, EId eId, std::vector<Inputs> &inputs)
         }
 };
 
-inline bool getGameoverState(CM &cm)
+inline bool getGameoverState(ComponentManager &cm)
 {
     auto [gameId, gameComps] = cm.getUnique<GameComponent>();
     return gameComps.peek(&GameComponent::isGameOver);
 };
 
-inline std::vector<Renderer::RenderableElement> getRenderableElements(CM &cm)
+inline std::vector<Renderer::RenderableElement> getRenderableElements(ComponentManager &cm)
 {
     std::vector<Renderer::RenderableElement> worldElements{};
     std::vector<Renderer::RenderableElement> uiElements{};
@@ -198,7 +198,7 @@ inline std::vector<Renderer::RenderableElement> getRenderableElements(CM &cm)
     return worldElements;
 };
 
-template <typename... Ts> inline void cleanupEffect(CM &cm)
+template <typename... Ts> inline void cleanupEffect(ComponentManager &cm)
 {
     std::apply(
         [&](auto &...set) {

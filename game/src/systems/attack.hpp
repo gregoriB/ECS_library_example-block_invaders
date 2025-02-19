@@ -7,12 +7,12 @@
 
 namespace Systems::Attack
 {
-inline void cleanup(CM &cm)
+inline void cleanup(ComponentManager &cm)
 {
     Utilities::cleanupEffect<AttackEffect>(cm);
 }
 
-inline void updateAttackEffect(CM &cm)
+inline void updateAttackEffect(ComponentManager &cm)
 {
     auto [attackEffectSet] = cm.getAll<AttackEffect>();
     attackEffectSet.each([&](EId eId, auto &attackEffects) {
@@ -30,7 +30,7 @@ inline void updateAttackEffect(CM &cm)
     });
 }
 
-inline void processAttacks(CM &cm)
+inline void processAttacks(ComponentManager &cm)
 {
     auto [attackEventSet] = cm.getAll<AttackEvent>();
     attackEventSet.each([&](EId eId, auto &attackEvents) {
@@ -62,7 +62,7 @@ inline void processAttacks(CM &cm)
     });
 }
 
-inline auto update(CM &cm)
+inline auto update(ComponentManager &cm)
 {
     processAttacks(cm);
     updateAttackEffect(cm);

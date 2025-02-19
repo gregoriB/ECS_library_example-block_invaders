@@ -19,7 +19,8 @@
 
 using EntityId = uint32_t;
 using EId = EntityId;
-using CM = ECS::Manager<EntityId>;
+using ComponentManager = ECS::Manager<EntityId>;
+using CM = ComponentManager;
 
 #define PRINT(...) ECS::internal::Utilities::print(__VA_ARGS__);
 

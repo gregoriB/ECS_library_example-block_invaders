@@ -6,11 +6,11 @@
 
 namespace Systems::Health
 {
-inline void cleanup(CM &cm)
+inline void cleanup(ComponentManager &cm)
 {
 }
 
-inline auto update(CM &cm)
+inline auto update(ComponentManager &cm)
 {
     cm.getGroup<HealthEvent, HealthComponent>().each([&](EId eId, auto &healthEvents, auto &healthComps) {
         healthEvents.inspect([&](const HealthEvent &healthEvent) {

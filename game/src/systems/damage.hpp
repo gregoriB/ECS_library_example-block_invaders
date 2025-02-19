@@ -5,11 +5,11 @@
 
 namespace Systems::Damage
 {
-inline void cleanup(CM &cm)
+inline void cleanup(ComponentManager &cm)
 {
 }
 
-inline auto update(CM &cm)
+inline auto update(ComponentManager &cm)
 {
     auto [damageEventSet] = cm.getAll<DamageEvent>();
     damageEventSet.each([&](EId eId, auto &damageEvents) {

@@ -21,9 +21,9 @@
 
 namespace Update
 {
-using CleanupFunc = std::function<void(CM &)>;
+using CleanupFunc = std::function<void(ComponentManager &)>;
 
-template <typename CleanupFuncs> inline void cleanup(CM &cm, CleanupFuncs &cleanupFuncs)
+template <typename CleanupFuncs> inline void cleanup(ComponentManager &cm, CleanupFuncs &cleanupFuncs)
 {
     for (auto &func : cleanupFuncs)
         func(cm);
@@ -31,7 +31,7 @@ template <typename CleanupFuncs> inline void cleanup(CM &cm, CleanupFuncs &clean
     cm.clear<ECS::Tags::Event>();
 }
 
-inline bool run(CM &cm)
+inline bool run(ComponentManager &cm)
 {
     // clang-format off
     std::array<CleanupFunc, 14> cleanupFuncs{

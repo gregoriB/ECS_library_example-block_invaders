@@ -8,12 +8,12 @@
 
 namespace Systems::AI
 {
-inline void cleanup(CM &cm)
+inline void cleanup(ComponentManager &cm)
 {
     Utilities::cleanupEffect<AITimeoutEffect, UFOTimeoutEffect>(cm);
 }
 
-inline void updateOutsideHiveAliens(CM &cm, EId hiveId, const HiveComponent &hiveComp)
+inline void updateOutsideHiveAliens(ComponentManager &cm, EId hiveId, const HiveComponent &hiveComp)
 {
     auto &ids = cm.getEntityIds<HiveAIComponent>();
     if (ids.empty())
@@ -35,7 +35,7 @@ inline void updateOutsideHiveAliens(CM &cm, EId hiveId, const HiveComponent &hiv
     };
 }
 
-inline void updateHiveBounds(CM &cm, EId hiveId)
+inline void updateHiveBounds(ComponentManager &cm, EId hiveId)
 {
     auto [hiveComps] = cm.get<HiveComponent>(hiveId);
     hiveComps.mutate([&](HiveComponent &hiveComp) {
@@ -65,7 +65,7 @@ inline void updateHiveBounds(CM &cm, EId hiveId)
     });
 }
 
-inline void handleHiveShift(CM &cm, auto &hiveMovementEffects)
+inline void handleHiveShift(ComponentManager &cm, auto &hiveMovementEffects)
 {
     hiveMovementEffects.mutate([&](HiveMovementEffect &hiveMovementEffect) {
         using Movement = decltype(HiveMovementEffect::movement);
@@ -86,7 +86,7 @@ inline void handleHiveShift(CM &cm, auto &hiveMovementEffects)
 }
 
 template <typename Movement>
-inline Vector2 calculateSpeed(CM &cm, const Vector2 &speed, const Movement &movement)
+inline Vector2 calculateSpeed(ComponentManager &cm, const Vector2 &speed, const Movement &movement)
 {
     auto [_, gameComps] = cm.getUnique<GameComponent>();
     float modifier = gameComps.peek(&GameComponent::currentStage) / 2.0f;
@@ -116,7 +116,8 @@ inline Vector2 calculateSpeed(CM &cm, const Vector2 &speed, const Movement &move
     return calculatedSpeed;
 }
 
-template <typename Movement> inline bool checkIsOutOfBounds(CM &cm, EId hiveId, Movement &movement)
+template <typename Movement>
+inline bool checkIsOutOfBounds(ComponentManager &cm, EId hiveId, Movement &movement)
 {
     auto [gameId, gameComps] = cm.getUnique<GameComponent>();
     auto [movementComps] = cm.get<MovementComponent>(hiveId);
@@ -144,7 +145,7 @@ template <typename Movement> inline bool checkIsOutOfBounds(CM &cm, EId hiveId, 
     }));
 }
 
-inline bool checkHiveOutOfBounds(CM &cm, EId hiveId, auto &hiveMovementEffects)
+inline bool checkHiveOutOfBounds(ComponentManager &cm, EId hiveId, auto &hiveMovementEffects)
 {
     if (!cm.exists<LeftAlienComponent>() || !cm.exists<RightAlienComponent>())
         updateHiveBounds(cm, hiveId);
@@ -164,7 +165,7 @@ inline bool checkHiveOutOfBounds(CM &cm, EId hiveId, auto &hiveMovementEffects)
     return false;
 }
 
-inline void moveHiveAI(CM &cm, EId hiveId, auto &hiveMovementEffects)
+inline void moveHiveAI(ComponentManager &cm, EId hiveId, auto &hiveMovementEffects)
 {
     auto movement = hiveMovementEffects.peek(&HiveMovementEffect::movement);
     auto [movementComps] = cm.get<MovementComponent>(hiveId);
@@ -182,7 +183,7 @@ inline void moveHiveAI(CM &cm, EId hiveId, auto &hiveMovementEffects)
         cm.add<MovementEvent>(eId, std::move(newSpeed));
 }
 
-inline void updateHiveMovement(CM &cm, EId hiveId, auto &hiveMovementEffects)
+inline void updateHiveMovement(ComponentManager &cm, EId hiveId, auto &hiveMovementEffects)
 {
     hiveMovementEffects.mutate([&](HiveMovementEffect &hiveMovementEffect) {
         auto &allHiveAiIds = cm.getEntityIds<HiveAIComponent>();
@@ -210,7 +211,7 @@ inline bool checkShouldHiveAIMove(ECS::Components<HiveMovementEffect> &hiveMovem
     }));
 }
 
-inline void updateHive(CM &cm)
+inline void updateHive(ComponentManager &cm)
 {
     auto [hiveMovementSet] = cm.getAll<HiveMovementEffect>();
     hiveMovementSet.each([&](EId hiveId, auto &hiveMovementEffects) {
@@ -234,7 +235,7 @@ inline bool containsId(const auto &vec, EntityId id)
     return false;
 }
 
-inline void handleHiveAttack(CM &cm)
+inline void handleHiveAttack(ComponentManager &cm)
 {
     auto [hiveId, hiveComps] = cm.getUnique<HiveComponent>();
     if (!hiveId)
@@ -276,7 +277,7 @@ inline void handleHiveAttack(CM &cm)
     cm.add<AITimeoutEffect>(hiveId, randomDelay);
 }
 
-inline void updateUFO(CM &cm)
+inline void updateUFO(ComponentManager &cm)
 {
     auto [gameId, gameMetaComps] = cm.getUnique<GameMetaComponent>();
     auto [ufoTimeoutEffect] = cm.get<UFOTimeoutEffect>(gameId);
@@ -292,7 +293,7 @@ inline void updateUFO(CM &cm)
     cm.add<UFOTimeoutEffect>(gameId, 15);
 }
 
-inline void handleUFOAttack(CM &cm)
+inline void handleUFOAttack(ComponentManager &cm)
 {
     auto [ufoAISet] = cm.getAll<UFOAIComponent>();
     ufoAISet.each([&](EId eId, auto &ufoAiComps) {
@@ -305,7 +306,7 @@ inline void handleUFOAttack(CM &cm)
     });
 }
 
-inline auto update(CM &cm)
+inline auto update(ComponentManager &cm)
 {
     updateHive(cm);
     updateUFO(cm);

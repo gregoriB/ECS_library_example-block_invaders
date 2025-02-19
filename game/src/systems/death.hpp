@@ -5,14 +5,14 @@
 
 namespace Systems::Death
 {
-inline void cleanup(CM &cm)
+inline void cleanup(ComponentManager &cm)
 {
     auto &deadIds = cm.getEntityIds<DeathComponent>();
     for (const auto &id : deadIds)
         cm.remove(id);
 }
 
-inline auto update(CM &cm)
+inline auto update(ComponentManager &cm)
 {
     auto [deathSet] = cm.getAll<DeathEvent>();
     deathSet.each([&](EId eId, ECS::Components<DeathEvent> &deathEvents) {
