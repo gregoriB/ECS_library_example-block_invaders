@@ -30,7 +30,7 @@ If on windows, use your C++ development tools to build via CMake
 
 ## License
 
-COMING SOON
+Apache 2.0
 
 [//]: # ()
 
