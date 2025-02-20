@@ -4,16 +4,9 @@
 #include "core.hpp"
 #include "renderer.hpp"
 
-inline void createGame(ComponentManager &cm, Vector2 &size, int tileSize)
-{
-    EntityId gameId = cm.createEntity();
-
-    PRINT("CREATE GAME", gameId)
-    cm.add<GameMetaComponent>(gameId, size, tileSize);
-    cm.add<GameComponent>(gameId, Bounds{0, 0, size.x, size.y});
-    cm.add<UFOTimeoutEffect>(gameId, 12);
-    cm.add<PowerupTimeoutEffect>(gameId);
-}
+/******************************************/
+// Template-compatible Entity Constructors
+/******************************************/
 
 inline EntityId hive(ComponentManager &cm, float x, float y, float w, float h)
 {
@@ -73,32 +66,6 @@ inline EntityId playerLives(ComponentManager &cm, float x, float y, float w, flo
     cm.add<UIComponent>(id);
     cm.add<TextComponent>(id, "LIVES: 3");
     cm.add<PlayerLifeCardComponent>(id);
-
-    return id;
-};
-
-inline EntityId createUfo(ComponentManager &cm, float x, float y)
-{
-    EntityId id = cm.createEntity();
-    PRINT("UFO SPAWNED", id)
-    cm.add<UFOAIComponent>(id);
-    auto [_, gameMetaComps] = cm.getUnique<GameMetaComponent>();
-    auto &size = gameMetaComps.peek(&GameMetaComponent::screen);
-    const float &tileSize = gameMetaComps.peek(&GameMetaComponent::tileSize);
-    float diff = 15;
-    float newW = tileSize + diff;
-    float newX = x - newW;
-    cm.add<CollidableComponent>(id);
-    cm.add<PositionComponent>(id, Bounds{newX, y, newW, tileSize});
-    cm.add<AttackComponent>(id, Movements::DOWN);
-    cm.add<HealthComponent>(id, 10);
-    cm.add<DamageComponent>(id, 100);
-    cm.add<PointsComponent>(id, 150);
-    cm.add<MovementComponent>(id, Vector2{tileSize * 4, tileSize * 4});
-    cm.add<MovementEffect>(id, Vector2{tileSize * size.x, tileSize / 2});
-    cm.add<SpriteComponent>(id, Renderer::RGBA{255, 0, 0, 255});
-    float randomDelay = std::rand() % 5;
-    cm.add<AttackEffect>(id, randomDelay);
 
     return id;
 };
@@ -211,6 +178,47 @@ inline EntityId greenBlock(ComponentManager &cm, float x, float y, float w, floa
 
     return id;
 }
+
+/******************************************/
+// NON-Template-compatible Constructors
+/******************************************/
+
+inline void createGame(ComponentManager &cm, Vector2 &size, int tileSize)
+{
+    EntityId gameId = cm.createEntity();
+
+    PRINT("CREATE GAME", gameId)
+    cm.add<GameMetaComponent>(gameId, size, tileSize);
+    cm.add<GameComponent>(gameId, Bounds{0, 0, size.x, size.y});
+    cm.add<UFOTimeoutEffect>(gameId, 12);
+    cm.add<PowerupTimeoutEffect>(gameId);
+}
+
+inline EntityId createUfo(ComponentManager &cm, float x, float y)
+{
+    EntityId id = cm.createEntity();
+    PRINT("UFO SPAWNED", id)
+    cm.add<UFOAIComponent>(id);
+    auto [_, gameMetaComps] = cm.getUnique<GameMetaComponent>();
+    auto &size = gameMetaComps.peek(&GameMetaComponent::screen);
+    const float &tileSize = gameMetaComps.peek(&GameMetaComponent::tileSize);
+    float diff = 15;
+    float newW = tileSize + diff;
+    float newX = x - newW;
+    cm.add<CollidableComponent>(id);
+    cm.add<PositionComponent>(id, Bounds{newX, y, newW, tileSize});
+    cm.add<AttackComponent>(id, Movements::DOWN);
+    cm.add<HealthComponent>(id, 10);
+    cm.add<DamageComponent>(id, 100);
+    cm.add<PointsComponent>(id, 150);
+    cm.add<MovementComponent>(id, Vector2{tileSize * 4, tileSize * 4});
+    cm.add<MovementEffect>(id, Vector2{tileSize * size.x, tileSize / 2});
+    cm.add<SpriteComponent>(id, Renderer::RGBA{255, 0, 0, 255});
+    float randomDelay = std::rand() % 5;
+    cm.add<AttackEffect>(id, randomDelay);
+
+    return id;
+};
 
 inline EntityId createProjectile(ComponentManager &cm, Bounds bounds)
 {
