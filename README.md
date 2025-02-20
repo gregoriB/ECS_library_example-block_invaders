@@ -28,6 +28,10 @@ If on windows, use your C++ development tools to build via CMake
 
 ## Development
 
+I'm open to PRs to fix bugs and possibly add features. However since this game was created to be basic example for how to use the ECS library, I will insist that any changes follow the already established styling and approaches.
+
+Features can be added as long as they don't bloat the game into a sub-optimal example for the library. If someone wanted to add audio(open source, of course), gamepad support, or improve the UI, that would be ideal.
+
 ## License
 
 Apache 2.0
