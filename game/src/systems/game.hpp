@@ -10,6 +10,7 @@ inline void cleanup(ComponentManager &cm)
 {
 }
 
+// Handle game state for game over/quit events and stage transitions
 inline auto update(ComponentManager &cm)
 {
     auto [gameEventSet] = cm.getAll<GameEvent>();
@@ -26,7 +27,7 @@ inline auto update(ComponentManager &cm)
                 }
                 case GameEvents::GAME_OVER: {
                     PRINT("GAME OVER")
-                    Utilities::nextStage(cm, -999);
+                    Utilities::goToStage(cm, -999);
                     auto [playerId, _] = cm.getUnique<PlayerComponent>();
                     cm.add<DeactivatedComponent>(playerId);
                     break;
@@ -36,14 +37,14 @@ inline auto update(ComponentManager &cm)
                     if (eId == startTriggerId)
                     {
                         gameComp.currentStage = 1;
-                        Utilities::nextStage(cm, 1);
+                        Utilities::goToStage(cm, gameComp.currentStage);
                         auto entities = cm.getEntityIds<TitleScreenComponent>();
                         cm.remove(entities);
                     }
                     else
                     {
                         PRINT("STAGE CLEARED!!")
-                        Utilities::nextStage(cm, ++gameComp.currentStage);
+                        Utilities::goToStage(cm, ++gameComp.currentStage);
                     }
                     break;
                 }

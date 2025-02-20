@@ -8,12 +8,13 @@
 
 namespace Systems::Item
 {
-inline void cleanup(CM &cm)
+inline void cleanup(ComponentManager &cm)
 {
     Utilities::cleanupEffect<PowerupTimeoutEffect, PowerupEffect>(cm);
 }
 
-inline void spawnPowerup(CM &cm)
+// Creates a new power in specified intervals IF the player doesn't already have a powerup
+inline void spawnPowerup(ComponentManager &cm)
 {
     auto [gameId, gameMetaComps] = cm.getUnique<GameMetaComponent>();
     if (cm.contains<PowerupTimeoutEffect>(gameId))
@@ -34,14 +35,14 @@ inline void spawnPowerup(CM &cm)
     cm.add<PowerupTimeoutEffect>(gameId);
 }
 
-inline void processEvents(CM &cm)
+inline void processEvents(ComponentManager &cm)
 {
     auto &powerupEventIds = cm.getEntityIds<PowerupEvent>();
     for (const auto &id : powerupEventIds)
         cm.add<PowerupEffect>(id);
 }
 
-inline auto update(CM &cm)
+inline auto update(ComponentManager &cm)
 {
     processEvents(cm);
     spawnPowerup(cm);

@@ -20,13 +20,12 @@
 using EntityId = uint32_t;
 using EId = EntityId;
 using ComponentManager = ECS::Manager<EntityId>;
-using CM = ComponentManager;
 
 #define PRINT(...) ECS::internal::Utilities::print(__VA_ARGS__);
 
-constexpr bool BREAK = false;
-constexpr bool CONTINUE = true;
-
+/**
+ * @brief Generic inputs to be converted into game inputs
+ */
 enum class Inputs
 {
     UP,
@@ -40,13 +39,15 @@ enum class Inputs
 
 struct ScreenConfig
 {
-    int width = 640;
-    int height = 480;
+    const int width{640};
+    const int height{480};
+    const int fps{30000};
+    const int ticks_per_frame{1000 / fps};
 };
 
-inline const int SCREEN_FPS = 300000;
-inline const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
-
+/**
+ * @brief Provides 2-dimensional coordinates
+ */
 class Vector2
 {
   public:
@@ -60,6 +61,9 @@ class Vector2
     }
 };
 
+/**
+ * @brief Provides relative and absolute rectangle bounds
+ */
 class Bounds
 {
   public:
@@ -84,5 +88,43 @@ class Bounds
     const std::array<float, 4> get() const
     {
         return {position.x, position.y, size.x, size.y};
+    }
+};
+
+/**
+ * @brief Provides simple benchmarking utilities
+ */
+class Benchmark
+{
+  public:
+    float average;
+    int cycles;
+
+    void printBenchmarks()
+    {
+        PRINT("average frame time:", average, "for", cycles, "frames\n", "  average FPS:", getFramerate());
+    }
+
+    void printBenchData()
+    {
+        PRINT("AVERAGE:", average, "CYCLES:", cycles, "FRAMERATE:", getFramerate())
+    }
+
+    void run(std::function<float()> fn)
+    {
+        auto start = std::chrono::high_resolution_clock::now();
+
+        cycles = fn();
+        if (cycles == 0)
+            cycles = 1;
+
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<float> duration = end - start;
+        average = duration.count() / cycles;
+    };
+
+    float getFramerate()
+    {
+        return cycles / (average * cycles);
     }
 };

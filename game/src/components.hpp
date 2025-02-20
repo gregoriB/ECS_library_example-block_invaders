@@ -316,6 +316,13 @@ struct UFOTimeoutEffect : Effect, Stack
     }
 };
 
+struct UFOAttackTimeoutEffect : Effect, Stack
+{
+    UFOAttackTimeoutEffect(float _duration) : Effect(_duration)
+    {
+    }
+};
+
 struct StartGameTriggerComponent : Required, Unique
 {
 };

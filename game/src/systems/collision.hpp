@@ -19,6 +19,7 @@ inline bool checkFriendlyFire(ComponentManager &cm, auto &projectileComps, auto 
     return hiveAiComps && movement == Movement::DOWN;
 }
 
+// Check for collisions and assign damage events and/or powerup events if no friendly fire is detected
 inline void handleCollisions(ComponentManager &cm)
 {
     auto [collisionCheckEventSet] = cm.getAll<CollisionCheckEvent>();

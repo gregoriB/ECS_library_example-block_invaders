@@ -10,6 +10,7 @@ inline void cleanup(ComponentManager &cm)
 {
 }
 
+// Handle health changes, create death events, and update color to reflect damages
 inline auto update(ComponentManager &cm)
 {
     cm.getGroup<HealthEvent, HealthComponent>().each([&](EId eId, auto &healthEvents, auto &healthComps) {

@@ -260,46 +260,6 @@ const std::vector<std::string_view> stage8{
     "                               ",
 };
 
-const std::vector<std::string_view> testStage1{
-    "                            ", 
-    "                            ", 
-    "                            ",
-    "                            ", 
-    "                            ", 
-    "                            ",
-    "             P              ", 
-    "                            ", 
-    "                            ",
-    "                            ", 
-    "                            ", 
-    "                            ",
-};
-
-const std::vector<std::string_view> testStage2{
-    " H                          ",
-    "                            ",
-    "                          S ", 
-    "                            ",
-    "                            ", 
-    "                            ",
-    "                            ",
-    "                            ",
-    "                            ", 
-    "                            ",
-    "                            ", 
-    "                            ",
-    "                            ", 
-    "                            ", 
-    "                            ",
-    "                            ", 
-    "                            ",
-    "                            ",
-    "             P              ", 
-    "                            ",
-    "                            ",
-    "                            ",
-};
-
 const std::vector<std::string_view> gameOver{
     "                              ",
     "                              ",
@@ -325,31 +285,6 @@ const std::vector<std::string_view> gameOver{
     "                              ",
 };
 
-const std::vector<std::string_view> test1{
-    "  H                           ",
-    "                              ",
-    "     S S S S S S S S S S S    ", 
-    "                              ",
-    "     M M M M M M M M M M M    ", 
-    "                              ",
-    "     M M M M M M M M M M M    ",
-    "                              ",
-    "     L L L L L L L L L L L    ", 
-    "                              ",
-    "     L L L L L L L L L L L    ", 
-    "                              ",
-    "                              ", 
-    "                              ", 
-    "                              ", 
-    "                              ", 
-    "                              ",
-    "  ####    ####   ####   ####  ", 
-    "  #  #    #  #   #  #   #  #  ",
-    "                              ",
-    "               P              ", 
-    "                              ",
-};
-
 inline std::vector<std::string_view> getStage(int stage)
 {
    switch(stage) 
@@ -366,8 +301,6 @@ inline std::vector<std::string_view> getStage(int stage)
         return stage5;
     case 999:
         return titlePage;
-    case -1:
-        return test1;
     default:
         return gameOver;
    }

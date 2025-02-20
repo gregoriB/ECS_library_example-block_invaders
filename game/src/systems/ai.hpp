@@ -10,9 +10,10 @@ namespace Systems::AI
 {
 inline void cleanup(ComponentManager &cm)
 {
-    Utilities::cleanupEffect<AITimeoutEffect, UFOTimeoutEffect>(cm);
+    Utilities::cleanupEffect<AITimeoutEffect, UFOTimeoutEffect, UFOAttackTimeoutEffect>(cm);
 }
 
+// Adds components to left and right aliens to denote their position
 inline void updateOutsideHiveAliens(ComponentManager &cm, EId hiveId, const HiveComponent &hiveComp)
 {
     auto &ids = cm.getEntityIds<HiveAIComponent>();
@@ -35,6 +36,7 @@ inline void updateOutsideHiveAliens(ComponentManager &cm, EId hiveId, const Hive
     };
 }
 
+// Sets the boundaries of the hive based on the outmost alien positions
 inline void updateHiveBounds(ComponentManager &cm, EId hiveId)
 {
     auto [hiveComps] = cm.get<HiveComponent>(hiveId);
@@ -65,6 +67,7 @@ inline void updateHiveBounds(ComponentManager &cm, EId hiveId)
     });
 }
 
+// Transitions the hive movement into the next direction
 inline void handleHiveShift(ComponentManager &cm, auto &hiveMovementEffects)
 {
     hiveMovementEffects.mutate([&](HiveMovementEffect &hiveMovementEffect) {
@@ -85,13 +88,23 @@ inline void handleHiveShift(ComponentManager &cm, auto &hiveMovementEffects)
     });
 }
 
-template <typename Movement>
-inline Vector2 calculateSpeed(ComponentManager &cm, const Vector2 &speed, const Movement &movement)
+inline float getDifficultyModifier(ComponentManager &cm)
 {
     auto [_, gameComps] = cm.getUnique<GameComponent>();
     float modifier = gameComps.peek(&GameComponent::currentStage) / 2.0f;
     if (modifier < 1)
         modifier = 1;
+
+    return modifier;
+}
+
+// Calculates movement speed based on the input speed, movement configuration object, and current stage speed
+// modifier
+template <typename Movement>
+inline Vector2 calculateSpeed(ComponentManager &cm, const Vector2 &speed, const Movement &movement)
+{
+    auto [_, gameComps] = cm.getUnique<GameComponent>();
+    float modifier = getDifficultyModifier(cm);
 
     Vector2 calculatedSpeed{0, 0};
 
@@ -117,7 +130,7 @@ inline Vector2 calculateSpeed(ComponentManager &cm, const Vector2 &speed, const 
 }
 
 template <typename Movement>
-inline bool checkIsOutOfBounds(ComponentManager &cm, EId hiveId, Movement &movement)
+inline bool checkHiveAgainstScreenBoundaries(ComponentManager &cm, EId hiveId, Movement &movement)
 {
     auto [gameId, gameComps] = cm.getUnique<GameComponent>();
     auto [movementComps] = cm.get<MovementComponent>(hiveId);
@@ -145,7 +158,8 @@ inline bool checkIsOutOfBounds(ComponentManager &cm, EId hiveId, Movement &movem
     }));
 }
 
-inline bool checkHiveOutOfBounds(ComponentManager &cm, EId hiveId, auto &hiveMovementEffects)
+// Check the leftmost and rightmost alien positions to see if the hive is out of bounds
+inline bool checkIsHiveOutOfBounds(ComponentManager &cm, EId hiveId, auto &hiveMovementEffects)
 {
     if (!cm.exists<LeftAlienComponent>() || !cm.exists<RightAlienComponent>())
         updateHiveBounds(cm, hiveId);
@@ -157,7 +171,7 @@ inline bool checkHiveOutOfBounds(ComponentManager &cm, EId hiveId, auto &hiveMov
     {
     case Movement::LEFT:
     case Movement::RIGHT:
-        return checkIsOutOfBounds(cm, hiveId, movement);
+        return checkHiveAgainstScreenBoundaries(cm, hiveId, movement);
     default:
         break;
     }
@@ -165,6 +179,7 @@ inline bool checkHiveOutOfBounds(ComponentManager &cm, EId hiveId, auto &hiveMov
     return false;
 }
 
+// Moves each hive alien based on the hive movement effect
 inline void moveHiveAI(ComponentManager &cm, EId hiveId, auto &hiveMovementEffects)
 {
     auto movement = hiveMovementEffects.peek(&HiveMovementEffect::movement);
@@ -183,6 +198,7 @@ inline void moveHiveAI(ComponentManager &cm, EId hiveId, auto &hiveMovementEffec
         cm.add<MovementEvent>(eId, std::move(newSpeed));
 }
 
+// Updates the hive movement data
 inline void updateHiveMovement(ComponentManager &cm, EId hiveId, auto &hiveMovementEffects)
 {
     hiveMovementEffects.mutate([&](HiveMovementEffect &hiveMovementEffect) {
@@ -211,11 +227,12 @@ inline bool checkShouldHiveAIMove(ECS::Components<HiveMovementEffect> &hiveMovem
     }));
 }
 
+// Handles moving hive aliens and updating the hive movement data
 inline void updateHive(ComponentManager &cm)
 {
     auto [hiveMovementSet] = cm.getAll<HiveMovementEffect>();
     hiveMovementSet.each([&](EId hiveId, auto &hiveMovementEffects) {
-        if (checkHiveOutOfBounds(cm, hiveId, hiveMovementEffects))
+        if (checkIsHiveOutOfBounds(cm, hiveId, hiveMovementEffects))
             handleHiveShift(cm, hiveMovementEffects);
 
         if (checkShouldHiveAIMove(hiveMovementEffects))
@@ -226,15 +243,9 @@ inline void updateHive(ComponentManager &cm)
     });
 }
 
-inline bool containsId(const auto &vec, EntityId id)
-{
-    for (const auto &vecId : vec)
-        if (vecId == id)
-            return true;
-
-    return false;
-}
-
+// Choose a random alien to attack. The alien cannot already be attacking, and there
+// are limits to how freqently the hive can attack, and how many aliens can be attacking
+// at the same time.  All of that is handled here.
 inline void handleHiveAttack(ComponentManager &cm)
 {
     auto [hiveId, hiveComps] = cm.getUnique<HiveComponent>();
@@ -264,7 +275,8 @@ inline void handleHiveAttack(ComponentManager &cm)
     for (auto iter = hiveAiIds.begin(); iter != hiveAiIds.end();)
     {
         auto id = hiveAiIds[*iter];
-        if (containsId(attackingAIs, id))
+
+        if (Utilities::containsId(attackingAIs, id))
             iter = hiveAiIds.erase(iter);
         else
             ++iter;
@@ -277,6 +289,7 @@ inline void handleHiveAttack(ComponentManager &cm)
     cm.add<AITimeoutEffect>(hiveId, randomDelay);
 }
 
+// Creates a new UFO if allowed
 inline void updateUFO(ComponentManager &cm)
 {
     auto [gameId, gameMetaComps] = cm.getUnique<GameMetaComponent>();
@@ -293,16 +306,22 @@ inline void updateUFO(ComponentManager &cm)
     cm.add<UFOTimeoutEffect>(gameId, 15);
 }
 
+// Creates a UFO attack if the UFO is not in a timeout state
 inline void handleUFOAttack(ComponentManager &cm)
 {
     auto [ufoAISet] = cm.getAll<UFOAIComponent>();
     ufoAISet.each([&](EId eId, auto &ufoAiComps) {
-        if (cm.contains<AITimeoutEffect>(eId))
+        if (cm.contains<UFOAttackTimeoutEffect>(eId))
             return;
 
-        float randomDelay = std::rand() % 5;
+        float modifier = getDifficultyModifier(cm);
+        int maxInterval = 5000;
+        // Get random number in milliseconds
+        float randInterval = std::rand() % maxInterval;
+        // Convert to seconds
+        randInterval = randInterval / 1000;
         cm.add<AttackEvent>(eId, 0);
-        cm.add<AITimeoutEffect>(eId, randomDelay);
+        cm.add<UFOAttackTimeoutEffect>(eId, randInterval / modifier);
     });
 }
 

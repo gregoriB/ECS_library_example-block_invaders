@@ -49,7 +49,6 @@ template <typename EntityId> class Manager
         exit();
     }
 
-    TTF_Font *m_font;
     bool init()
     {
         TTF_Init();
@@ -64,16 +63,9 @@ template <typename EntityId> class Manager
         return true;
     }
 
-    bool createRenderer()
-    {
-        if (!m_window)
-            return false;
-
-        m_renderer = SDL_CreateRenderer(m_window, false, SDL_RENDERER_ACCELERATED);
-
-        return m_renderer ? true : false;
-    }
-
+    /**
+     * @brief Create the window and renderer, and then render to the screen
+     */
     bool startRender()
     {
         if (!createWindow() || !createRenderer())
@@ -85,6 +77,48 @@ template <typename EntityId> class Manager
         SDL_SetRenderDrawColor(m_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
         return true;
+    }
+
+    /**
+     * @brief Render the elements passed in
+     *
+     * @param renderElements Container of renderable element configs
+     */
+    void render(std::vector<RenderableElement> &renderElements)
+    {
+        for (const auto &element : renderElements)
+            renderTile(element);
+
+        SDL_RenderPresent(m_renderer);
+    }
+
+    /**
+     * @brief Listen for inputs and check for certain keypresses
+     *
+     * @return Container of inputs
+     */
+    std::vector<Inputs> pollInputs()
+    {
+        std::vector<Inputs> inputs;
+        while (SDL_PollEvent(&m_event))
+        {
+            if (m_event.type == SDL_QUIT)
+            {
+                inputs.push_back(Inputs::QUIT);
+                continue;
+            }
+        }
+
+        const Uint8 *keyStates = SDL_GetKeyboardState(NULL);
+
+        if (keyStates[SDL_SCANCODE_LEFT])
+            inputs.push_back(Inputs::LEFT);
+        if (keyStates[SDL_SCANCODE_RIGHT])
+            inputs.push_back(Inputs::RIGHT);
+        if (keyStates[SDL_SCANCODE_SPACE])
+            inputs.push_back(Inputs::SHOOT);
+
+        return inputs;
     }
 
     void exit()
@@ -103,6 +137,33 @@ template <typename EntityId> class Manager
         std::cout << message << " SDL_Error: " << SDL_GetError() << std::endl;
     }
 
+    void clear()
+    {
+        SDL_SetRenderDrawColor(m_renderer, 0x00, 0x00, 0x00, 0xFF);
+        SDL_RenderClear(m_renderer);
+    }
+
+    int tick()
+    {
+        return SDL_GetTicks64();
+    }
+
+    void wait(int time)
+    {
+        SDL_Delay(time);
+    }
+
+  private:
+    bool createRenderer()
+    {
+        if (!m_window)
+            return false;
+
+        m_renderer = SDL_CreateRenderer(m_window, false, SDL_RENDERER_ACCELERATED);
+
+        return m_renderer ? true : false;
+    }
+
     bool createWindow()
     {
         m_window = SDL_CreateWindow("BLOCK INVADERS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -115,12 +176,6 @@ template <typename EntityId> class Manager
         }
 
         return true;
-    }
-
-    void clear()
-    {
-        SDL_SetRenderDrawColor(m_renderer, 0x00, 0x00, 0x00, 0xFF);
-        SDL_RenderClear(m_renderer);
     }
 
     void renderText(SDL_Renderer *renderer, const RenderableElement &re, const SDL_Rect &rect)
@@ -182,52 +237,11 @@ template <typename EntityId> class Manager
         return SDL_Rect{x, y, w, h};
     }
 
-    void render(std::vector<RenderableElement> &renderElements)
-    {
-        for (const auto &element : renderElements)
-            renderTile(element);
-
-        SDL_RenderPresent(m_renderer);
-    }
-
-    int tick()
-    {
-        return SDL_GetTicks64();
-    }
-
-    void wait(int time)
-    {
-        SDL_Delay(time);
-    }
-
-    std::vector<Inputs> pollInputs()
-    {
-        std::vector<Inputs> inputs;
-        while (SDL_PollEvent(&m_event))
-        {
-            if (m_event.type == SDL_QUIT)
-            {
-                inputs.push_back(Inputs::QUIT);
-                continue;
-            }
-        }
-
-        const Uint8 *keyStates = SDL_GetKeyboardState(NULL);
-
-        if (keyStates[SDL_SCANCODE_LEFT])
-            inputs.push_back(Inputs::LEFT);
-        if (keyStates[SDL_SCANCODE_RIGHT])
-            inputs.push_back(Inputs::RIGHT);
-        if (keyStates[SDL_SCANCODE_SPACE])
-            inputs.push_back(Inputs::SHOOT);
-
-        return inputs;
-    }
-
   private:
     SDL_Window *m_window;
     SDL_Event m_event;
     ScreenConfig m_screen;
     SDL_Renderer *m_renderer;
+    TTF_Font *m_font;
 };
 } // namespace Renderer

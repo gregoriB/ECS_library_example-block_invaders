@@ -12,7 +12,7 @@ inline void cleanup(ComponentManager &cm)
     Utilities::cleanupEffect<AttackEffect>(cm);
 }
 
-inline void updateAttackEffect(ComponentManager &cm)
+inline void removeExpiredAttackAffects(ComponentManager &cm)
 {
     auto [attackEffectSet] = cm.getAll<AttackEffect>();
     attackEffectSet.each([&](EId eId, auto &attackEffects) {
@@ -30,6 +30,7 @@ inline void updateAttackEffect(ComponentManager &cm)
     });
 }
 
+// Take attack events and convert those into attack, then create attack effects which hold attack info
 inline void processAttacks(ComponentManager &cm)
 {
     auto [attackEventSet] = cm.getAll<AttackEvent>();
@@ -65,7 +66,7 @@ inline void processAttacks(ComponentManager &cm)
 inline auto update(ComponentManager &cm)
 {
     processAttacks(cm);
-    updateAttackEffect(cm);
+    removeExpiredAttackAffects(cm);
 
     return cleanup;
 };

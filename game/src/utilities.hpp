@@ -6,27 +6,29 @@
 #include "renderer.hpp"
 #include "stages.hpp"
 #include "ui.hpp"
-#include <functional>
 #include <string_view>
 #include <tuple>
 
+/**
+ * @brief Utilities are helper functions to be called from the main game class or the various systems
+ */
 namespace Utilities
 {
-inline auto &first(auto value)
-{
-    return std::get<0>(value);
-}
 
+/**
+ * @brief Single place to register all transformation pipelines
+ */
 inline void registerTransformations(ComponentManager &cm)
 {
+    // Player powerup effect
     cm.registerTransformation<MovementComponent>([&](auto eId, MovementComponent comp) {
-        auto &projectile = first(cm.get<ProjectileComponent>(eId));
+        auto [projectile] = cm.get<ProjectileComponent>(eId);
         if (!projectile)
             return comp;
 
         auto [playerId, _] = cm.getUnique<PlayerComponent>();
         auto &shooterId = projectile.peek(&ProjectileComponent::shooterId);
-        if (shooterId != playerId || !first(cm.get<PowerupEffect>(playerId)))
+        if (shooterId != playerId || !cm.contains<PowerupEffect>(playerId))
             return comp;
 
         comp.speeds.y += 1000;
@@ -34,66 +36,71 @@ inline void registerTransformations(ComponentManager &cm)
     });
 }
 
-inline void stageBuilder(ComponentManager &cm, const std::vector<std::string_view> &stage, int tileSize)
-{
-    for (int row = 0; row < stage.size(); ++row)
-    {
-        for (int col = 0; col < stage[row].size(); ++col)
-        {
-            auto constructor = Stages::getEntityConstructor(stage[row][col]);
-            if (!constructor)
-                continue;
-
-            constructor(cm, col * tileSize, row * tileSize, tileSize, tileSize);
-        }
-    }
-};
-
-inline void uiBuilder(ComponentManager &cm, const std::vector<std::string_view> &ui, int tileSize)
-{
-    for (int row = 0; row < ui.size(); ++row)
-    {
-        for (int col = 0; col < ui[row].size(); ++col)
-        {
-            auto constructor = UI::getEntityConstructor(ui[row][col]);
-            if (!constructor)
-                continue;
-
-            constructor(cm, col * tileSize, row * tileSize, tileSize, tileSize);
-        }
-    }
-};
-
-inline void stageBuilder(ComponentManager &cm, const std::vector<std::string_view> &stage)
+inline int getTileSize(ComponentManager &cm, const std::vector<std::string_view> &stage)
 {
     auto [_, gameMetaComps] = cm.getUnique<GameMetaComponent>();
     auto &size = gameMetaComps.peek(&GameMetaComponent::screen);
-    return stageBuilder(cm, stage, size.x / stage[0].size());
+    return size.x / stage[0].size();
 }
 
-inline void setup(ComponentManager &cm, ScreenConfig &screen)
+/**
+ * @brief Build the game or UI from a template
+ *
+ * @tparam ConstructorGetterFn - Function which accepts a char and returns an entity constructor function
+ *
+ * @param templ - Reference to a template to build
+ * @param getter - Getter function
+ */
+template <typename ConstructorGetterFn>
+inline void buildFromTemplate(ComponentManager &cm, const std::vector<std::string_view> &templ,
+                              ConstructorGetterFn &getter)
+{
+    auto tileSize = getTileSize(cm, templ);
+    for (int row = 0; row < templ.size(); ++row)
+    {
+        for (int col = 0; col < templ[row].size(); ++col)
+        {
+            auto constructor = getter(templ[row][col]);
+            if (!constructor)
+                continue;
+
+            constructor(cm, col * tileSize, row * tileSize, tileSize, tileSize);
+        }
+    }
+};
+
+/**
+ * @brief All game initialization logic should be called from here
+ *
+ * @param screen - Screen config
+ */
+inline void initializeGame(ComponentManager &cm, ScreenConfig &screen)
 {
     PRINT("STARTING GAME")
     auto stage = Stages::getStage(999);
-    int tileSize = screen.width / stage[0].size();
-    Vector2 size{static_cast<float>(screen.width), static_cast<float>(screen.height)};
-
-    createGame(cm, size, tileSize);
+    float screenW = screen.width;
+    float screenH = screen.height;
+    Vector2 size{screenW, screenH};
+    createGame(cm, size, screen.width / stage[0].size());
     registerTransformations(cm);
-    stageBuilder(cm, stage, tileSize);
-    auto ui = UI::getUI(1);
-    uiBuilder(cm, ui, tileSize);
+    buildFromTemplate(cm, stage, Stages::getEntityConstructor);
+    buildFromTemplate(cm, UI::getUI(1), UI::getEntityConstructor);
 };
 
-inline void nextStage(ComponentManager &cm, int stage)
+/**
+ * @brief handles necessary current stage clearing and building of the next stage
+ *
+ * @param stage - New stage to load
+ */
+inline void goToStage(ComponentManager &cm, int stage)
 {
     PRINT("STAGE:", stage, "LOADED")
     cm.clear<HiveMovementEffect>();
     cm.remove(cm.getEntityIds<HiveAIComponent>());
-    stageBuilder(cm, Stages::getStage(stage));
+    buildFromTemplate(cm, Stages::getStage(stage), Stages::getEntityConstructor);
 };
 
-inline void updateDeltaTime(ComponentManager &cm, float delta)
+inline void setDeltaTime(ComponentManager &cm, float delta)
 {
     auto [gameId, gameMetaComps] = cm.getUnique<GameMetaComponent>();
     gameMetaComps.mutate([&](GameMetaComponent &gameMetaComp) { gameMetaComp.deltaTime = delta; });
@@ -104,6 +111,15 @@ inline float getDeltaTime(ComponentManager &cm)
     auto [gameId, gameMetaComps] = cm.getUnique<GameMetaComponent>();
     return gameMetaComps.peek(&GameMetaComponent::deltaTime);
 };
+
+inline bool containsId(const auto &vec, EntityId id)
+{
+    for (const auto &vecId : vec)
+        if (vecId == id)
+            return true;
+
+    return false;
+}
 
 inline void registerPlayerInputs(ComponentManager &cm, std::vector<Inputs> &inputs)
 {
@@ -135,41 +151,11 @@ inline void registerPlayerInputs(ComponentManager &cm, std::vector<Inputs> &inpu
     }
 };
 
-inline void registerAIInputs(ComponentManager &cm, EId eId, std::vector<Inputs> &inputs)
-{
-    using Movements = decltype(AIInputEvent::movement);
-    using Actions = decltype(AIInputEvent::action);
-    for (const auto &input : inputs)
-        switch (input)
-        {
-        case Inputs::SHOOT:
-            cm.add<AIInputEvent>(eId, Actions::SHOOT);
-            break;
-        case Inputs::LEFT:
-            cm.add<AIInputEvent>(eId, Movements::LEFT);
-            break;
-        case Inputs::RIGHT:
-            cm.add<AIInputEvent>(eId, Movements::RIGHT);
-            break;
-        case Inputs::UP:
-            cm.add<AIInputEvent>(eId, Movements::UP);
-            break;
-        case Inputs::DOWN:
-            cm.add<AIInputEvent>(eId, Movements::DOWN);
-            break;
-        case Inputs::MENU:
-        case Inputs::QUIT:
-        default:
-            break;
-        }
-};
-
-inline bool getGameoverState(ComponentManager &cm)
-{
-    auto [gameId, gameComps] = cm.getUnique<GameComponent>();
-    return gameComps.peek(&GameComponent::isGameOver);
-};
-
+/**
+ * @brief Creates renderable elements, separated by non-UI and UI components.
+ *
+ * @return Container of rendereable elements
+ */
 inline std::vector<Renderer::RenderableElement> getRenderableElements(ComponentManager &cm)
 {
     std::vector<Renderer::RenderableElement> worldElements{};
@@ -180,11 +166,11 @@ inline std::vector<Renderer::RenderableElement> getRenderableElements(ComponentM
             auto &rgba = spriteComps.peek(&SpriteComponent::rgba);
             auto [x, y, w, h] = positionComps.peek(&PositionComponent::bounds).get();
             Renderer::RenderableElement renderEl{x, y, w, h, rgba};
-            auto &uiComps = first(cm.get<UIComponent>(eId));
-            auto &vec = !!uiComps ? uiElements : worldElements;
-            if (uiComps)
+            auto isUIComps = cm.contains<UIComponent>(eId);
+            auto &vec = isUIComps ? uiElements : worldElements;
+            if (isUIComps)
             {
-                auto &textComps = first(cm.get<TextComponent>(eId));
+                auto [textComps] = cm.get<TextComponent>(eId);
                 textComps.inspect([&](const TextComponent &textComp) {
                     renderEl.text = textComp.text;
                     renderEl.rgba = Renderer::RGBA{255, 255, 255, 255};
@@ -194,10 +180,14 @@ inline std::vector<Renderer::RenderableElement> getRenderableElements(ComponentM
             vec.push_back(std::move(renderEl));
         });
 
+    // UI elements are last to ensure they are overlaid on top
     worldElements.insert(worldElements.end(), uiElements.begin(), uiElements.end());
     return worldElements;
 };
 
+/**
+ * @brief Iterate over each component set and cleanup and expired effects
+ */
 template <typename... Ts> inline void cleanupEffect(ComponentManager &cm)
 {
     std::apply(

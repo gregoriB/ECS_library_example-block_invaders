@@ -19,10 +19,20 @@
 
 #include <functional>
 
+/**
+ * @brief Handles updating all game systems in the correct order, and cleaning up after updates
+ */
 namespace Update
 {
 using CleanupFunc = std::function<void(ComponentManager &)>;
 
+/**
+ * @brief Run the system cleanup function and clear any components which need clearing
+ *
+ * @tparam CleanupFuncs - Container of cleanup functions
+ *
+ * @param clenaupFuncs - Cleanup functions
+ */
 template <typename CleanupFuncs> inline void cleanup(ComponentManager &cm, CleanupFuncs &cleanupFuncs)
 {
     for (auto &func : cleanupFuncs)
@@ -31,6 +41,12 @@ template <typename CleanupFuncs> inline void cleanup(ComponentManager &cm, Clean
     cm.clear<ECS::Tags::Event>();
 }
 
+/**
+ * @brief Handles updating all systems in order, cleanup, and returns a bool to communicate the game exit
+ * state
+ *
+ * @return bool - Game over state
+ */
 inline bool run(ComponentManager &cm)
 {
     // clang-format off

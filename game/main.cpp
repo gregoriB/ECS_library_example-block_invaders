@@ -4,6 +4,7 @@
  * @brief Run benchmarks for the specified number of sets and frames
  *
  * @param sets - number of sets to run
+ * @param frames - frame limit. Stops the game when the limit is reached
  */
 Benchmark runWithBenchmarks(int sets = 3, int frames = 500000)
 {

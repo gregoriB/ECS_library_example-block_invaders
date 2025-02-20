@@ -10,6 +10,7 @@ inline void cleanup(ComponentManager &cm)
 {
 }
 
+// Create player movement based on the input events
 inline void movePlayer(ComponentManager &cm)
 {
     float dt = Utilities::getDeltaTime(cm);

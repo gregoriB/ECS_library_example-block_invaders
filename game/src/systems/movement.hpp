@@ -32,6 +32,7 @@ inline Bounds calculateNewBounds(auto &movementEvents, const PositionComponent &
     return Bounds{pX + rX, pY + rY, pW, pH};
 }
 
+// Create movement events for automated movements
 inline void applyMovementEffects(ComponentManager &cm)
 {
     auto dt = Utilities::getDeltaTime(cm);
@@ -57,7 +58,8 @@ inline void applyMovementEffects(ComponentManager &cm)
         });
 }
 
-inline void updateOtherMovement(ComponentManager &cm)
+// Update movement from movement events
+inline void updateMovement(ComponentManager &cm)
 {
     auto [movementEventSet] = cm.getAll<MovementEvent>();
     movementEventSet.each([&](EId eId, auto &movementEvents) {
@@ -94,7 +96,7 @@ inline void updateOtherMovement(ComponentManager &cm)
 inline auto update(ComponentManager &cm)
 {
     applyMovementEffects(cm);
-    updateOtherMovement(cm);
+    updateMovement(cm);
 
     return cleanup;
 };

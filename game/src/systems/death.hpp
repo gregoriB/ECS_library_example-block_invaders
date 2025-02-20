@@ -12,6 +12,7 @@ inline void cleanup(ComponentManager &cm)
         cm.remove(id);
 }
 
+// Handle creating score events, assign death states, and handle player deaths in a special way
 inline auto update(ComponentManager &cm)
 {
     auto [deathSet] = cm.getAll<DeathEvent>();

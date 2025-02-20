@@ -1,18 +1,21 @@
 #pragma once
 
-#include "benchmark.hpp"
 #include "core.hpp"
 #include "renderer.hpp"
 #include "update.hpp"
 #include "utilities.hpp"
+#include <stdexcept>
 
+/**
+ * @brief Setup the game and rendering, and run the game.
+ */
 class Game
 {
   public:
     Benchmark run(int cycles)
     {
         if (!init())
-            throw std::runtime_error("INIT FAILED");
+            throw std::runtime_error("Game initialization failed");
 
         Benchmark benchmark;
         benchmark.run([&]() -> int { return loop(cycles); });
@@ -23,7 +26,7 @@ class Game
     void run()
     {
         if (!init())
-            throw std::runtime_error("INIT FAILED");
+            throw std::runtime_error("Game initialization failed");
 
         loop();
     }
@@ -32,31 +35,35 @@ class Game
     bool init()
     {
         if (!m_renderManager.init())
-            throw 12345;
+            throw std::runtime_error("Renderer initialization failed!");
 
-        Utilities::setup(m_entityComponentManager, m_screenConfig);
+        Utilities::initializeGame(m_entityComponentManager, m_screenConfig);
         m_renderManager.startRender();
 
         return true;
     }
 
+    /**
+     * @brief Main game update loops where player input, system updates, and rerendering happens
+     *
+     * @param limit - Optional frame limit.  Game terminates when the limit is reached.
+     */
     int loop(int limit = 0)
     {
         PRINT("\n $$$$$ STARTING GAME $$$$$ \n")
 
         int cycleCount{0};
         bool quit{false};
-        float prevTime = m_renderManager.tick();
+        float prevTime{0.0f};
 
         while (!quit)
         {
-            cycleCount++;
             if (cycleCount++ > limit && limit)
                 break;
 
             float startTime = m_renderManager.tick();
-            auto inputs = m_renderManager.pollInputs();
 
+            auto inputs = m_renderManager.pollInputs();
             Utilities::registerPlayerInputs(m_entityComponentManager, inputs);
 
             if (!Update::run(m_entityComponentManager))
@@ -66,17 +73,12 @@ class Game
                 continue;
             };
 
-            m_renderManager.clear();
-            auto renders = Utilities::getRenderableElements(m_entityComponentManager);
-            m_renderManager.render(renders);
-
-            int endTime = m_renderManager.tick();
-            int timeDiff = endTime - startTime;
-            if (timeDiff < SCREEN_TICKS_PER_FRAME)
-                m_renderManager.wait(SCREEN_TICKS_PER_FRAME - timeDiff);
+            updateRenderer();
+            waitIfNecessary(startTime);
 
             float delta = (startTime - prevTime) / 1000.0f;
             setDeltaTime(delta);
+
             prevTime = startTime;
         }
 
@@ -87,9 +89,24 @@ class Game
         return cycleCount;
     }
 
+    void updateRenderer()
+    {
+        m_renderManager.clear();
+        auto renders = Utilities::getRenderableElements(m_entityComponentManager);
+        m_renderManager.render(renders);
+    }
+
+    void waitIfNecessary(int startTime)
+    {
+        int endTime = m_renderManager.tick();
+        int timeDiff = endTime - startTime;
+        if (timeDiff < m_screenConfig.ticks_per_frame)
+            m_renderManager.wait(m_screenConfig.ticks_per_frame - timeDiff);
+    }
+
     void setDeltaTime(float delta)
     {
-        Utilities::updateDeltaTime(m_entityComponentManager, delta);
+        Utilities::setDeltaTime(m_entityComponentManager, delta);
     }
 
   private:
